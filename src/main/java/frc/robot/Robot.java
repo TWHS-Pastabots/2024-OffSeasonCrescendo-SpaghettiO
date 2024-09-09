@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.AltAmpCommand;
+
 import frc.robot.commands.AltRevLauncher;
 import frc.robot.commands.AmpCommand;
 import frc.robot.commands.AutoHandoff;
@@ -66,7 +66,7 @@ public class Robot extends LoggedRobot {
   private AutoSpeaker autoSpeaker;
   private HandoffCommand currentSpikeHandoff;
   private AmpCommand ampCommand;
-  private AltAmpCommand altAmpCommand;
+  
 
 
   private SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -88,7 +88,7 @@ public class Robot extends LoggedRobot {
     shootCommand = new ShootCommand();
     autoSpeaker = new AutoSpeaker();
     ampCommand = new AmpCommand();
-    altAmpCommand = new AltAmpCommand();
+    
     foldOutCommand = new FoldOutCommand();
     // currentSpikeHandoff = new HandoffCommand();
     Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
@@ -429,10 +429,7 @@ public class Robot extends LoggedRobot {
         ampCommand.initialize();
         ampCommand.schedule();
         drivebase.setDriveState(DriveState.SLOW);
-      } else if (launcher.getLaunchState() == LauncherState.ALTAMP) {
-        altAmpCommand.initialize();
-        altAmpCommand.schedule();
-        drivebase.setDriveState(DriveState.SLOW);
+      } 
       } else {
         shootCommand.initialize();
         shootCommand.schedule();
