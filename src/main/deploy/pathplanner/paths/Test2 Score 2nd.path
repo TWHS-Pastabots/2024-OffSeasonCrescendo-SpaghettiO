@@ -1,0 +1,52 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.922373537054768,
+        "y": 5.56
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.4442845757824383,
+        "y": 5.557187650087104
+      },
+      "isLocked": false,
+      "linkedName": "MiddleRingFront"
+    },
+    {
+      "anchor": {
+        "x": 1.4127312870010371,
+        "y": 5.535354916863679
+      },
+      "prevControl": {
+        "x": 1.8406955486043837,
+        "y": 5.54043612119943
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "P2 Start"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 2.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 800.0,
+    "maxAngularAcceleration": 600.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Test",
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
