@@ -34,6 +34,8 @@ import frc.robot.Constants.DriveConstants;
 public class Drivebase extends SubsystemBase {
   private static Drivebase instance;
 
+  //Enums for the two speed settings
+
   public enum DriveState {
     NORMAL(1),
     SLOW(0.5);
@@ -45,15 +47,21 @@ public class Drivebase extends SubsystemBase {
     }
   }
 
+  //Sets the Driving original state to NORMAL
   private DriveState driveState = DriveState.NORMAL;
+
 
   public SwerveModule frontLeft;
   public SwerveModule backLeft;
   public SwerveModule frontRight;
   public SwerveModule backRight;
 
+
+  //Use for the follower config
   private HolonomicPathFollowerConfig config;
 
+
+  //GYRO
   private static AHRS gyro;
 
   SwerveDriveOdometry odometry;
@@ -79,29 +87,43 @@ public class Drivebase extends SubsystemBase {
     backRight = new SwerveModule(Ports.backRightDrive, Ports.backRightSteer,
         DriveConstants.kBackRightChassisAngularOffset, true);
 
+    
+      
+    //GYRO SET TO 90 DEGREE ADJUSTMENT
+
     gyro = new AHRS(SPI.Port.kMXP);
 
     gyro.setAngleAdjustment(90);
     gyro.zeroYaw();
 
+    
+    //THIS FACTOR IN GYRO ANGLE AND RETURNS ESTIMATION
     poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
         Rotation2d.fromDegrees(-gyro.getAngle()),
         getPositions(), new Pose2d());
 
+    
+    //TRAPAZOID MOTION PROFILE define the maximum velocity and acceleration (MAKE SURE TO TWEAK BEFORE EVERY SWERVE) 
     headingController = new ProfiledPIDController(4.5, 0, 0, new TrapezoidProfile.Constraints(0, 0), .02);
     headingController.enableContinuousInput(-Math.PI, Math.PI);
 
+    
+    //PID constants for both translation and rotation, along with a path-following configuration (Edit for path following autos)
     config = new HolonomicPathFollowerConfig(new PIDConstants(1.4, 0, 0),
         new PIDConstants(1.1, 0.0000, 0.0),
         // 0.12, 0.00001, 0.0
         5, Math.sqrt(Math.pow(DriveConstants.kTrackWidth / 2, 2) +
             Math.pow(DriveConstants.kWheelBase / 2, 2)),
         new ReplanningConfig());
-        
+
+    
+    //Auto builder basically sets up the Autonomous file and in the resets
     AutoBuilder.configureHolonomic(this::getPose, this::resetOdometry, this::getSpeeds, this::setAutoSpeeds, config,
         shouldFlipPath(), this);
   }
 
+
+  
   public void setFieldPose(final Pose2d pose) {
     this.resetOdometry(pose);
   }

@@ -21,7 +21,7 @@ import frc.robot.subsystems.IO.DigitalInputs;
 import frc.robot.Ports;
 
 public class Launcher {
-
+    //launcherstates include the launch speed along with the rotations for the launcher motor 
     public enum LauncherState {
         // AMP(-48.5, 1.0),
         AMP(-60.5, 0.8),
@@ -50,24 +50,24 @@ public class Launcher {
 
         public double position;
         public double launchSpeed;
-
+        
         private LauncherState(double position, double launchSpeed) {
             this.position = position;
             this.launchSpeed = launchSpeed;
         }
     }
-
-    public enum LeBronTeam {
-        CAVS(-0.25),
-        LAKERS(-20);
+    //the same as above but for the amp mechanism
+    public enum AmpMotorPos {
+        DOWN(-0.25),
+        UP(-20);
 
         public double position;
 
-        private LeBronTeam(double position) {
+        private AmpMotorPos(double position) {
             this.position = position;
         }
     }
-
+    //getting instances of every motor 
     double anglePower = 0.2;
 
     private CANSparkMax shootMotor1;
@@ -77,16 +77,16 @@ public class Launcher {
 
     private CANSparkMax pivotMotor;
 
-    private CANSparkMax lebronMotor;
+    private CANSparkMax ampMotor;
 
     private double increment = 1.0;
 
     private ArmFeedforward feedForward;
-    private ArmFeedforward lebronFeedForward;
+    private ArmFeedforward ampMotorFeedForward;
 
     private SparkMaxPIDController pivotController1;
 
-    private SparkMaxPIDController lebronController;
+    private SparkMaxPIDController ampMotorController;
 
     private static RelativeEncoder encoder;
 
@@ -97,14 +97,14 @@ public class Launcher {
     private boolean[] connections = new boolean[8];
 
     private static LauncherState launchState = LauncherState.START;
-    private static LeBronTeam leBronTeam = LeBronTeam.CAVS;
+    private static AmpMotorPos ampPose= AmpMotorPos.DOWN;
 
     public static Launcher instance;
 
     //public VisionTablesListener visTables;
 
-    private HashMap<Double, Double> lookupTable = new HashMap<>();
-    private double[] bluePositions = new double[] { 1.62, 1.93, 2.34, 2.41, 2.63, 2.71, 2.94, 3.01, 3.3, 4.14 };
+    // private HashMap<Double, Double> lookupTable = new HashMap<>();
+    // private double[] bluePositions = new double[] { 1.62, 1.93, 2.34, 2.41, 2.63, 2.71, 2.94, 3.01, 3.3, 4.14 };
 
     public Launcher() {
         shootMotor1 = new CANSparkMax(Ports.shootMotor1, MotorType.kBrushless);
@@ -141,16 +141,16 @@ public class Launcher {
 
         pivotMotor.setOpenLoopRampRate(1);
 
-        lebronMotor = new CANSparkMax(Ports.lebron, MotorType.kBrushless);
-        lebronMotor.restoreFactoryDefaults();
+        ampMotor = new CANSparkMax(Ports.lebron, MotorType.kBrushless);
+        ampMotor.restoreFactoryDefaults();
 
-        lebronMotor.setSmartCurrentLimit(20);
-        lebronMotor.setIdleMode(IdleMode.kBrake);
+        ampMotor.setSmartCurrentLimit(20);
+        ampMotor.setIdleMode(IdleMode.kBrake);
 
         feedForward = new ArmFeedforward(0.012, 0.017, 0.0, 0.0);
         // u:.023 l:.011 mid:.017 ks:.012
 
-        lebronFeedForward = new ArmFeedforward(0, 0, 0);
+        ampMotorFeedForward = new ArmFeedforward(0, 0, 0);
 
         encoder = pivotMotor.getEncoder();
 
@@ -164,36 +164,25 @@ public class Launcher {
 
         pivotController1.setOutputRange(-1, 1);
 
-        lebronController = lebronMotor.getPIDController();
+        ampMotorController = ampMotor.getPIDController();
 
-        boxScore = lebronMotor.getEncoder();
+        boxScore = ampMotor.getEncoder();
         boxScore.setPositionConversionFactor(1);
 
-        lebronController.setFeedbackDevice(boxScore);
+        ampMotorController.setFeedbackDevice(boxScore);
 
-        lebronController.setOutputRange(-1, 1);
+        ampMotorController.setOutputRange(-1, 1);
 
-        lebronController.setP(LauncherConstants.lebronPCoefficient);
-        lebronController.setI(LauncherConstants.lebronICoefficient);
-        lebronController.setD(LauncherConstants.lebronDCoefficient);
+        ampMotorController.setP(LauncherConstants.lebronPCoefficient);
+        ampMotorController.setI(LauncherConstants.lebronICoefficient);
+        ampMotorController.setD(LauncherConstants.lebronDCoefficient);
 
         pivotMotor.burnFlash();
-        lebronMotor.burnFlash();
+        ampMotor.burnFlash();
 
         breakBeam = DigitalInputs.getInstance();
 
-        //visTables = VisionTablesListener.getInstance();
-
-        lookupTable.put(2.94, -10.25);
-        lookupTable.put(2.41, -13.25);
-        lookupTable.put(2.71, -8.25);
-        lookupTable.put(1.62, -18.25);
-        lookupTable.put(2.63, -8.25);
-        lookupTable.put(2.34, -13.25);
-        lookupTable.put(3.01, -10.25);
-        lookupTable.put(3.3, -7.5);
-        lookupTable.put(1.93, -16.25);
-        lookupTable.put(4.14, -7.25);
+        
 
     }
 
@@ -202,88 +191,19 @@ public class Launcher {
         pivotController1.setReference(launchState.position, CANSparkMax.ControlType.kPosition, 0,
                 feedForward.calculate(encoder.getPosition(), 0));
 
-        // lebronMotor.set(lebronFeedForward.calculate(boxScore.getPosition(), 0));
-
-        // pivotController1.setReference(15, CANSparkMax.ControlType.kPosition, 0,
-        // feedForward.calculate(encoder.getPosition(), 0));
-
-        // pivotController1.setReference(20, ControlType.kPosition, 0,
-        // feedForward.calculate(absEncoder.getPosition()* (2* Math.PI) + .349, 0));
-
-        // pivotMotor.set(feedForward.calculate(absEncoder.getPosition()* (2* Math.PI) +
-        // .349, 0, 0));
+        
 
     }
 
-    public void moveLeBron() {
-        lebronController.setReference(leBronTeam.position, CANSparkMax.ControlType.kPosition, 0,
-                lebronFeedForward.calculate(boxScore.getPosition(), 0));
+    public void moveAmp() {
+        ampMotorController.setReference(ampPose.position, CANSparkMax.ControlType.kPosition, 0,
+                ampMotorFeedForward.calculate(boxScore.getPosition(), 0));
     }
 
     public void interpolateAngle() {
         double deltaX;
 
-    //     if (visTables.getLauncherDetects()) {
-    //         if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-    //             deltaX = visTables.getVisX() - .08;
-    //         } else {
-    //             deltaX = 16.579342 - visTables.getVisX() + .2;
-    //         }
-
-    //         double position;
-
-    //         if (deltaX > 1) {
-    //             position = -16.1878 * Math.pow(Math.atan(2 / deltaX), 11 / 8);
-    //         } else {
-    //             position = -20.1878 * Math.pow(Math.atan(2 / deltaX), 11 / 8);
-    //         }
-
-    //         LauncherState.INTERLOPE.position = MathUtil.clamp(position, LauncherState.SPEAKER.position,
-    //                 LauncherState.HOVER.position);
-
-    //         SmartDashboard.putNumber("DeltaX", deltaX);
-
-    //         // setLauncherState(LauncherState.INTERLOPE);
-    //     }
-    // }
-
-    // public void lookUpPosition() {
-    //     double deltaX;
-
-    //     if (visTables.getLauncherDetects()) {
-    //         if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-    //             deltaX = visTables.getVisX() - 0.08;
-    //         } else {
-    //             deltaX = 16.579342 - visTables.getVisX() + .2;
-    //         }
-    //         double position;
-
-    //         if (lookupTable.containsKey(deltaX)) {
-    //             position = lookupTable.get(deltaX);
-    //         } else {
-    //             int upper = 0;
-    //             int lower = 0;
-    //             for (int i = 0; i < bluePositions.length - 1; i++) {
-    //                 if (deltaX < bluePositions[0]) {
-    //                     deltaX = LauncherState.ALTSPEAKER.position;
-    //                     break;
-    //                 } else if (deltaX > bluePositions[bluePositions.length - 1]) {
-    //                     deltaX = LauncherState.HOVER.position;
-    //                 } else if (deltaX > bluePositions[upper]) {
-    //                     lower = upper;
-    //                     upper = i + 1;
-    //                 }
-    //             }
-
-    //             position = deltaX * ((bluePositions[upper] - bluePositions[lower]) / upper - lower);
-
-    //             // SmartDashboard.putNumber("deltaX", deltaX + .08);
-    //             // SmartDashboard.putNumber("deltaX", 16.579342 + visTables.getVisX() - .2);
-    //             LauncherState.INTERLOPE.position = MathUtil.clamp(position, LauncherState.SPEAKER.position,
-    //                     LauncherState.HOVER.position);
-    //             // setLauncherState(LauncherState.INTERLOPE);
-    //         }
-    //     }
+    
      }
 
     public void eject() {
@@ -291,16 +211,16 @@ public class Launcher {
         shootMotor1.set(launchState.launchSpeed);
     }
 
-    public void setLeBronOn() {
-        lebronMotor.set(-0.5);
+    public void ampOn() {
+        ampMotor.set(-0.5);
     }
 
-    public void setLeBronReverse() {
-        lebronMotor.set(0.5);
+    public void ampReverse() {
+        ampMotor.set(0.5);
     }
 
-    public void setLeBronOff() {
-        lebronMotor.set(0.0);
+    public void ampOff() {
+        ampMotor.set(0.0);
     }
 
     public void setPivotOff() {
@@ -315,12 +235,12 @@ public class Launcher {
         return LauncherState.SPEAKER.position;
     }
 
-    public double getLeBronPostion() {
+    public double getAmpPostion() {
         return boxScore.getPosition();
     }
 
-    public double getLebronCurrent(){
-        return lebronMotor.getOutputCurrent();
+    public double getAmpCurrent(){
+        return ampMotor.getOutputCurrent();
 
     }
 
@@ -330,14 +250,11 @@ public class Launcher {
 
     public void setLauncherOn() {
         if (launchState == LauncherState.AMP) {
-            // shootMotor1.set(-launchState.launchSpeed);
-            // shootMotor2.set(launchState.launchSpeed * 0.1);
+           
             shootMotor1.set(launchState.launchSpeed * 0.1);
             shootMotor2.set(launchState.launchSpeed * 0.1);
-        } else if (launchState == LauncherState.ALTAMP) {
-            shootMotor1.set(-launchState.launchSpeed);
-            shootMotor2.set(launchState.launchSpeed * 0.1);
-        } else {
+        } 
+        else {
             shootMotor1.set(launchState.launchSpeed);
             shootMotor2.set(launchState.launchSpeed);
         }
@@ -345,13 +262,10 @@ public class Launcher {
 
     public void setReverseLauncherOn() {
 
-        // if(launchState == LauncherState.AMP){
-        // shootMotor1.set(-launchState.launchSpeed);
-        // shootMotor2.set(launchState.launchSpeed * 0.36);
-        // } else {
+        
         shootMotor1.set(-launchState.launchSpeed);
         shootMotor2.set(-launchState.launchSpeed);
-        // }
+        
     }
 
     public void setLauncherOff() {
@@ -400,8 +314,8 @@ public class Launcher {
         launchState = state;
     }
 
-    public void setLeBronTeam(LeBronTeam team) {
-        leBronTeam = team;
+    public void setAmpPose(AmpMotorPos position) {
+        ampPose = position;
     }
 
     public void increaseIncrement() {

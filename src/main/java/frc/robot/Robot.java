@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
 import frc.robot.commands.AltRevLauncher;
 import frc.robot.commands.AmpCommand;
 import frc.robot.commands.AutoHandoff;
@@ -26,7 +25,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.subsystems.launcher.Launcher;
 import frc.robot.subsystems.launcher.Launcher.LauncherState;
-import frc.robot.subsystems.launcher.Launcher.LeBronTeam;
+import frc.robot.subsystems.launcher.Launcher.AmpMotorPos;
 import edu.wpi.first.apriltag.AprilTagDetection;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -88,7 +87,6 @@ public class Robot extends LoggedRobot {
     shootCommand = new ShootCommand();
     autoSpeaker = new AutoSpeaker();
     ampCommand = new AmpCommand();
-    
     foldOutCommand = new FoldOutCommand();
     // currentSpikeHandoff = new HandoffCommand();
     Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
@@ -227,7 +225,7 @@ public class Robot extends LoggedRobot {
 
 
 
-    SmartDashboard.putNumber("LeBron Position", launcher.getLeBronPostion());
+    SmartDashboard.putNumber("LeBron Position", launcher.getAmpPostion());
     //SmartDashboard.putNumber("Lebron Current?", launcher.getLebronCurrent());
   }
 
@@ -290,7 +288,7 @@ public class Robot extends LoggedRobot {
     /* DRIVE CONTROLS */
 
     if (!ampCommand.isScheduled()) {
-      launcher.moveLeBron();
+      launcher.moveAmp();
     }
 
     double ySpeed = drivebase.inputDeadband(-driver.getLeftX());
@@ -354,9 +352,9 @@ public class Robot extends LoggedRobot {
     if (operator.getLeftBumper()) {
       intake.setIntakeState(IntakeState.STOP); 
       launcher.setLauncherState(LauncherState.HOVER);
-      launcher.setLeBronTeam(LeBronTeam.CAVS);
+      launcher.setAmpPose(AmpMotorPos.DOWN);
       launcher.updatePose();
-      launcher.moveLeBron();
+      launcher.moveAmp();
       launcher.setLauncherOff();
       launcher.setFlickOff();
       //litty.setBlue();
@@ -429,7 +427,9 @@ public class Robot extends LoggedRobot {
         ampCommand.initialize();
         ampCommand.schedule();
         drivebase.setDriveState(DriveState.SLOW);
-      } 
+      } else if (launcher.getLaunchState() == LauncherState.ALTAMP) {
+        
+        drivebase.setDriveState(DriveState.SLOW);
       } else {
         shootCommand.initialize();
         shootCommand.schedule();

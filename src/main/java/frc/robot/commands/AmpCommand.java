@@ -3,7 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.launcher.Launcher.LeBronTeam;
+import frc.robot.subsystems.launcher.Launcher.AmpMotorPos;
 
 public class AmpCommand extends Command {
 
@@ -39,8 +39,8 @@ public class AmpCommand extends Command {
       }
 
       if(launcher.hasReachedPose(3.5)){
-        launcher.setLeBronTeam(LeBronTeam.LAKERS);
-        launcher.moveLeBron();
+        launcher.setAmpPose(AmpMotorPos.UP);
+        launcher.moveAmp();
       }
 
       double elapsedtime = Timer.getFPGATimestamp() - starttime; 
@@ -59,8 +59,8 @@ public class AmpCommand extends Command {
   public void end(boolean interrupted) {
     launcher.setFlickOff();
     launcher.setLauncherOff();
-    launcher.setLeBronTeam(LeBronTeam.CAVS);
-    launcher.moveLeBron();
+    launcher.setAmpPose(AmpMotorPos.DOWN);
+    launcher.moveAmp();
   }
 
   @Override
