@@ -34,9 +34,7 @@ public class ShootCommand extends Command {
     launcher.setLauncherOn();
     
     intake.setIntakeState(IntakeState.STOP);
-    // if(launcher.getLaunchState() == LauncherState.INTERLOPE || launcher.getLaunchState() == LauncherState.TEST){
-    //   launcher.lookUpPosition();
-    // }
+  
   }
 
   @Override

@@ -15,7 +15,7 @@ import frc.robot.commands.AutoSpeaker;
 import frc.robot.commands.BreakBeamHandoff;
 import frc.robot.commands.Celebrate;
 import frc.robot.commands.FoldOutCommand;
-import frc.robot.commands.HandoffCommand;
+
 import frc.robot.commands.RevLauncher;
 import frc.robot.commands.RotationCommand;
 import frc.robot.commands.ShootCommand;
@@ -29,16 +29,19 @@ import frc.robot.subsystems.launcher.Launcher.AmpMotorPos;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.swerve.Drivebase;
 import frc.robot.subsystems.swerve.Drivebase.DriveState;
+import frc.robot.subsystems.vision.CameraSystem;
 //import frc.robot.subsystems.vision.VisionTablesListener;
 import frc.robot.subsystems.vision.DualCamera;
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -52,8 +55,8 @@ public class Robot extends LoggedRobot {
   private Intake intake;
   private Launcher launcher;
   private LED litty;
-  //private VisionTablesListener visTables;
-
+  private CameraSystem camSystem;
+  
   private static XboxController driver;
   private static XboxController operator;
 
@@ -63,7 +66,7 @@ public class Robot extends LoggedRobot {
   private BreakBeamHandoff handoffCommand;
   private ShootCommand shootCommand;
   private AutoSpeaker autoSpeaker;
-  private HandoffCommand currentSpikeHandoff;
+  
   private AmpCommand ampCommand;
 
   
@@ -73,15 +76,20 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-    dualCamera = DualCamera.getInstance();
+    //dualCamera = DualCamera.getInstance();
     drivebase = Drivebase.getInstance();
     launcher = Launcher.getInstance();
     intake = Intake.getInstance();
     climber = Climber.getInstance();
     litty = LED.getInstance();
+    camSystem = CameraSystem.getInstance();
+    camSystem.AddCamera(new PhotonCamera("BackCam"), new Transform3d(
+        new Translation3d(-.31, .01, -0.375), new Rotation3d(0.0, Math.toRadians(30), Math.PI))
+        );
+    camSystem.AddCamera(new PhotonCamera("FrontCam"),new Transform3d(
+        new Translation3d(.325, -.275, 0.24), new Rotation3d(0.0, Math.toRadians(30), Math.toRadians(0.0))) 
+        );
 
-  
-    //visTables = VisionTablesListener.getInstance();
 
     driver = new XboxController(0);
     operator = new XboxController(1);
@@ -91,11 +99,11 @@ public class Robot extends LoggedRobot {
     autoSpeaker = new AutoSpeaker();
     ampCommand = new AmpCommand();
     foldOutCommand = new FoldOutCommand();
-    // currentSpikeHandoff = new HandoffCommand();
-    Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
+   
+    
 
     NamedCommands.registerCommand("AutoSpeaker", autoSpeaker);
-    NamedCommands.registerCommand("Handoff", new AutoHandoff());
+    NamedCommands.registerCommand("Handoff", new BreakBeamHandoff());
     NamedCommands.registerCommand("AutoLeftShot", new AutoLeftShot());
     NamedCommands.registerCommand("AutoRightShot", new AutoRightShot());
     NamedCommands.registerCommand("AutoMidShot", new AutoMidShot());
