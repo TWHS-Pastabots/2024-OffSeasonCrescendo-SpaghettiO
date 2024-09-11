@@ -1,23 +1,15 @@
 package frc.robot.subsystems.launcher;
 
-import java.util.HashMap;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.subsystems.IO.DigitalInputs;
-//import frc.robot.subsystems.vision.VisionTablesListener;
 import frc.robot.Ports;
 
 public class Launcher {
@@ -101,12 +93,11 @@ public class Launcher {
 
     public static Launcher instance;
 
-    //public VisionTablesListener visTables;
-
-    // private HashMap<Double, Double> lookupTable = new HashMap<>();
-    // private double[] bluePositions = new double[] { 1.62, 1.93, 2.34, 2.41, 2.63, 2.71, 2.94, 3.01, 3.3, 4.14 };
-
     public Launcher() {
+
+        //Initialization of all the motors - setting power and other settings
+
+        //Some motors are inverted some others, double check with trial and error 
         shootMotor1 = new CANSparkMax(Ports.shootMotor1, MotorType.kBrushless);
         shootMotor1.restoreFactoryDefaults();
 
@@ -137,8 +128,7 @@ public class Launcher {
         pivotMotor.setSmartCurrentLimit(60);
         pivotMotor.setIdleMode(IdleMode.kBrake);
         pivotMotor.setInverted(true);
-        // pivotMotor.setInverted(false);
-
+        
         pivotMotor.setOpenLoopRampRate(1);
 
         ampMotor = new CANSparkMax(Ports.lebron, MotorType.kBrushless);
@@ -147,6 +137,8 @@ public class Launcher {
         ampMotor.setSmartCurrentLimit(20);
         ampMotor.setIdleMode(IdleMode.kBrake);
 
+        //PID calculations. 
+        //PIVOT MOTOR PID CALCULATIONS
         feedForward = new ArmFeedforward(0.012, 0.017, 0.0, 0.0);
         // u:.023 l:.011 mid:.017 ks:.012
 
@@ -164,6 +156,7 @@ public class Launcher {
 
         pivotController1.setOutputRange(-1, 1);
 
+        //AMP PID SETUP
         ampMotorController = ampMotor.getPIDController();
 
         boxScore = ampMotor.getEncoder();
@@ -179,13 +172,13 @@ public class Launcher {
 
         pivotMotor.burnFlash();
         ampMotor.burnFlash();
-
+        //the breakbeam instance from an input
         breakBeam = DigitalInputs.getInstance();
 
         
 
     }
-
+    //launcher update method. Updates the launcher's positiong to the specified position
     public void updatePose() {
 
         pivotController1.setReference(launchState.position, CANSparkMax.ControlType.kPosition, 0,
@@ -194,51 +187,45 @@ public class Launcher {
         
 
     }
-
+    //moves the amp mechanism to the specified position
     public void moveAmp() {
         ampMotorController.setReference(ampPose.position, CANSparkMax.ControlType.kPosition, 0,
                 ampMotorFeedForward.calculate(boxScore.getPosition(), 0));
     }
-
-    public void interpolateAngle() {
-        double deltaX;
-
-    
-     }
-
+    //motor speeds for ejecting the ring out of the launcher. Only one should be on to reduce the speed so the eject is safe.
     public void eject() {
         shootMotor2.set(0);
         shootMotor1.set(launchState.launchSpeed);
     }
-
+    //The power needed for the amp motor
     public void ampOn() {
         ampMotor.set(-0.5);
     }
-
+    //The power needed to move in reverese
     public void ampReverse() {
         ampMotor.set(0.5);
     }
-
+    //Amp rest state
     public void ampOff() {
         ampMotor.set(0.0);
     }
-
+    //launcher rotation at rest
     public void setPivotOff() {
         pivotMotor.set(0.0);
     }
-
+    //getting the test position for the launcher (can be changed on dashboard during testing)
     public double getTestPosition() {
         return LauncherState.TEST.position;
     }
-
+    //getting the speaker positiong (operator can change mid match therefore need this)
      public double getSpeakerPosition() {
         return LauncherState.SPEAKER.position;
     }
-
+    //the amp position needed to score the amp 
     public double getAmpPostion() {
         return boxScore.getPosition();
     }
-
+    //the electrical component of the amp, mostly to output to the dashboard to understand whether or not amp is working
     public double getAmpCurrent(){
         return ampMotor.getOutputCurrent();
 
@@ -247,7 +234,7 @@ public class Launcher {
     
 
     
-
+    //Giving the launcher power, everything gets 100% but the amp that only needs 10% to work
     public void setLauncherOn() {
         if (launchState == LauncherState.AMP) {
            
@@ -259,7 +246,7 @@ public class Launcher {
             shootMotor2.set(launchState.launchSpeed);
         }
     }
-
+    //The reverse of Launcher power
     public void setReverseLauncherOn() {
 
         
@@ -267,57 +254,59 @@ public class Launcher {
         shootMotor2.set(-launchState.launchSpeed);
         
     }
-
+    //Launcher turned off
     public void setLauncherOff() {
         shootMotor1.set(0.0);
         shootMotor2.set(0.0);
     }
-
+    //Flickers are the small wheels at the back of the launcher. They are used to push the rings to the flywheels
+    //and intaking the rings that are 
     public void setFlickerOn() {
         flicker.set(1.0);
     }
-
+    //setting flickers in reverse
     public void setFlickerReverse() {
         flicker.set(-1.0);
     }
-
-    public void 
-    setFlickerPartial() {
+    //set it to partial speed, mostly for testing in the pits and such
+    public void setFlickerPartial() {
         flicker.set(0.85);
     }
 
     public void setFlickOff() {
         flicker.set(0);
     }
-
+    //get the position of the robot according to the encoders. Not reliable, needs vision
     public double getPosition() {
         return encoder.getPosition();
     }
-
+    //setting the opposite of the breakbeam because normally if the breakbeam is broken it would give a false,
+    //so now it gives true if broken, false if not broken
     public boolean getBreakBeam() {
         return !breakBeam.getInputs()[Ports.launcherBreakBeam];
     }
-
-    public LauncherState getLaunchState() {
-        return launchState;
-    }
-
+   
+    //get the current that the pivot motor is receiving (used for testing)
     public double getPivotCurrent() {
         return pivotMotor.getOutputCurrent();
     }
-
+    //returns if the position of any of the launcher subsystems has reached a point that makes sense
     public boolean hasReachedPose(double tolerance) {
         return Math.abs(getPosition() - launchState.position) < tolerance;
     }
-
+     //getting the current launcherstate 
+    public LauncherState getLaunchState() {
+        return launchState;
+    }
+    //setting the launcherstate from the controller
     public void setLauncherState(LauncherState state) {
         launchState = state;
     }
-
+    //setting the Amp position to the position that we passed along to it
     public void setAmpPose(AmpMotorPos position) {
         ampPose = position;
     }
-
+    //increasing and decreasing the increments that the operator can change the positions of the speaker by
     public void increaseIncrement() {
         increment += 0.25;
     }
@@ -325,7 +314,7 @@ public class Launcher {
     public void decreaseInrement() {
         increment -= 0.25;
     }
-
+    //increases the speaker position in the middle of the match
     public void increasePosition() {
         
         if (launchState == LauncherState.SPEAKER) {
@@ -333,14 +322,15 @@ public class Launcher {
         } 
 
     }
-
+    //same thing as above but decreasing
     public void decreasePosition() {
         if (launchState == LauncherState.SPEAKER) {
         LauncherState.SPEAKER.position = LauncherState.SPEAKER.position - increment;
         } 
 
     }
-
+    //this method checks if the launcher is connected to the power supply. It runs through all the motors that are used in the 
+    //launcher class. Returns true if everything is receiving power and false if one thing is broken
     public boolean[] launcherConnections() {
 
         if (shootMotor1.getBusVoltage() != 0) {
@@ -390,14 +380,14 @@ public class Launcher {
         } else {
             connections[7] = false;
         }
-
+        //returns the boolean, only one
         return connections;
     }
-
+    //checking for a brownout
     public boolean hasBrownedOut() {
         return pivotMotor.getFault(FaultID.kBrownout);
     }
-
+    //outputting the power data onto the smartdashboard
     public void printConnections() {
         SmartDashboard.putBoolean("shootMotor1 Voltage", connections[0]);
         SmartDashboard.putBoolean("shootMotor1 Current", connections[1]);
@@ -411,7 +401,7 @@ public class Launcher {
         SmartDashboard.putBoolean("Flicker Voltage", connections[6]);
         SmartDashboard.putBoolean("Flicker Current", connections[7]);
     }
-
+    //simple instance method to use in every other class
     public static Launcher getInstance() {
         if (instance == null)
             instance = new Launcher();

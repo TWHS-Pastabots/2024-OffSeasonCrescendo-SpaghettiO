@@ -21,7 +21,6 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 public class CameraSystem{
 
     private final Map<Integer, Pose3d> fiducialMap = new HashMap<>();
@@ -43,63 +42,85 @@ public class CameraSystem{
         // Initialize fiducial map with Pose3d
         initializeFiducialMap(inchesToMeters);
     }
+    // checks to see if the camera at the given position sees a tag
     public PhotonPipelineResult getResult(int position){
         return cameras.get(position).getLatestResult();
     }
+    // adds the camera, offset, and estimator to their arraylists; each camera, offset, and estimator have the same position in each arraylist
     public void AddCamera(PhotonCamera camera, Transform3d offset){
         cameras.add(camera);
         offsets.add(offset);
         estimators.add(new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, offset));
     }
+    // calculates robot position
      public Pose2d calculateRobotPosition() {
-        int count = 0;
+        int cameraCount = 0;
         int cameraTagCount = 0;
         double sumX = 0;
         double sumY = 0;
-        double sumZ = 0;
         
         double rotationSumx = 0;
         double rotationSumY = 0;
         double rotationSumZ = 0;
         
-        while(count<cameras.size())
+        // Goes through every camera in the camera array list and checks if it sees a tag
+        while(cameraCount<cameras.size())
         {
-            if(getResult(count).hasTargets())
+            if(getResult(cameraCount).hasTargets())
             {
-                Pose3d temp = calculatePoseFromCameraResult(getResult(count), offsets.get(count))
-                sumX = temp.getX();
-                sumY = temp.getY();
-                sumZ = temp.getZ();
-                rotationSumx = temp.getRotation().getX();
-                rotationSumY = temp.getRotation().getY();
-                rotationSumZ = temp.getRotation().getZ();              
+                // if the camera picks up a tag, it calculates the position from the tag and runs it through a pose estimator
+                Pose3d orig = calculatePoseFromCameraResult(getResult(cameraCount), offsets.get(cameraCount));
+                Pose3d temp = usePoseEstimator(cameraCount, orig.toPose2d()).get().estimatedPose;
+                // add the components of the pose 3d to the sums
+                sumX += temp.getX();
+                sumY += temp.getY();
+                rotationSumx += temp.getRotation().getX();
+                rotationSumY += temp.getRotation().getY();
+                rotationSumZ += temp.getRotation().getZ();              
                 cameraTagCount++;     
                 
             }
-            count++;
+            cameraCount++;
+        
         }
+        if(cameraTagCount > 0)
+        {
+        // Average X, Y, and Z from camera results
+        double avgX = sumX / cameraTagCount;
+        double avgY = sumY / cameraTagCount;
+        // We can ignore Z for Pose2d
+        Rotation3d avgRotation = new Rotation3d(
+            (double)rotationSumx / cameraTagCount,
+            (double)rotationSumY / cameraTagCount,
+            (double)rotationSumZ/ cameraTagCount
+        );
+
+        // Convert the 3D Pose to 2D Pose
+        return new Pose2d(avgX, avgY, new Rotation2d(avgRotation.getZ()));
+        }
+        // if no cameras detect tags, return blank Pose2d
+        return new Pose2d();
         
-        
-        // Return the Pose2d with available data, or a default Pose2d if none is available
-        return frontRobotPose != null ? new Pose2d(frontRobotPose.getX(), frontRobotPose.getY(), new Rotation2d(frontRobotPose.getRotation().getZ())) :
-               backRobotPose != null ? new Pose2d(backRobotPose.getX(), backRobotPose.getY(), new Rotation2d(backRobotPose.getRotation().getZ())) :
-               new Pose2d();
     }
+    // runs the orginal pose and puts it through it corresponding estimator
+    private Optional<EstimatedRobotPose> usePoseEstimator(int position, Pose2d prevPose){
+        estimators.get(position).setReferencePose(prevPose);
+        return estimators.get(position).update();
+    }
+    // calculates the postition of tag to robot from one camera's results 
     private Pose3d calculatePoseFromCameraResult(PhotonPipelineResult result, Transform3d cameraOffset) {
         if (result != null && result.hasTargets()) {
             PhotonTrackedTarget target = result.getBestTarget();
-            // Optional<Pose3d> aprilPose = aprilTagFieldLayout.getTagPose(target.getFiducialId());
-            // Transform3d transformPhoton = target.getBestCameraToTarget();
-            // Pose3d robotToTag = PhotonUtils.estimateFieldToRobotAprilTag(transformPhoton, aprilPose.get(), cameraOffset);
-            // return robotToTag;
-                
             
+                
+            // gets the position of the april tag scanned
             Pose3d fiducialPose = fiducialMap.get(target.getFiducialId());
 
             if (fiducialPose != null) {
+                // calcuates the april tag position to the camera
                 Transform3d transform = target.getBestCameraToTarget().inverse();
                 Pose3d cameraToTargetPose = fiducialPose.transformBy(transform);
-
+                // finds the pose of the robot from the camera position
                 Pose3d robotPose3d = cameraToTargetPose.transformBy(cameraOffset);
                 return new Pose3d(
                     robotPose3d.getX(),
@@ -117,7 +138,33 @@ public class CameraSystem{
         }
         return instance;
     }
-    // Field coordinates for the april tags (meters)
+
+    // checks to see if the result sees any aprl tags
+    public boolean hasTargets(){
+        int cameraCount = 0;
+        while(cameraCount < cameras.size() )
+        {
+            if(getResult(cameraCount).hasTargets()){
+                return true;
+            } 
+        }
+        return false;
+    }
+    //MR SPARK DOES NOT APPROVE OF THIS HORRIBLE ASS CODE
+    public double getTimeStamp() 
+    {
+        int cameraCount = 0;
+        while(cameraCount < cameras.size()){
+            if(getResult(cameraCount).hasTargets()){
+                Pose3d orig = calculatePoseFromCameraResult(getResult(cameraCount), offsets.get(cameraCount));
+                double temp = usePoseEstimator(cameraCount, orig.toPose2d()).get().timestampSeconds;
+                return temp;
+            }
+        }
+        return -1;
+    }
+    
+    // Field coordinates for the april tags (converting inches to meters)
     private void initializeFiducialMap(double inchesToMeters) {
         fiducialMap.put(1, new Pose3d(593.68 * inchesToMeters, 9.68 * inchesToMeters, 53.38 * inchesToMeters, new Rotation3d(0.0, 0.0, Math.toRadians(120))));
         fiducialMap.put(2, new Pose3d(637.21 * inchesToMeters, 34.79 * inchesToMeters, 53.38 * inchesToMeters, new Rotation3d(0.0, 0.0, Math.toRadians(120))));

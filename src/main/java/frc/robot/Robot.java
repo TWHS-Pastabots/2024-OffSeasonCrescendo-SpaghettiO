@@ -26,7 +26,7 @@ import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.subsystems.launcher.Launcher;
 import frc.robot.subsystems.launcher.Launcher.LauncherState;
 import frc.robot.subsystems.launcher.Launcher.AmpMotorPos;
-import edu.wpi.first.apriltag.AprilTagDetection;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -65,6 +65,7 @@ public class Robot extends LoggedRobot {
   private AutoSpeaker autoSpeaker;
   private HandoffCommand currentSpikeHandoff;
   private AmpCommand ampCommand;
+
   
 
 
@@ -78,6 +79,8 @@ public class Robot extends LoggedRobot {
     intake = Intake.getInstance();
     climber = Climber.getInstance();
     litty = LED.getInstance();
+
+  
     //visTables = VisionTablesListener.getInstance();
 
     driver = new XboxController(0);
@@ -144,6 +147,9 @@ public class Robot extends LoggedRobot {
 
         SmartDashboard.putNumber("Odometry X", posTele.getX());
         SmartDashboard.putNumber("Odometry Y", posTele.getY());
+
+        
+    
 
 
 
@@ -404,8 +410,7 @@ public class Robot extends LoggedRobot {
       launcher.setLauncherState(LauncherState.LONG);
     }
 
-      // launcher.interpolateAngle();
-      // launcher.lookUpPosition();
+      
 
      if (operator.getAButton()) {
       foldOutCommand.schedule();

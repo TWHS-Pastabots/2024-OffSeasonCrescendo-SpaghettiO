@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Ports;
+import frc.robot.subsystems.vision.CameraSystem;
 import frc.robot.subsystems.vision.DualCamera;
 import frc.robot.Constants.DriveConstants;
 
@@ -152,21 +153,29 @@ public class Drivebase extends SubsystemBase {
 
   public Pose2d updateOdometry(Pose2d pose, PhotonPipelineResult result){
       Pose2d position = poseEstimator.update(gyro.getRotation2d(), getPositions());
-      DualCamera dualCamera = DualCamera.getInstance();
-      Optional<EstimatedRobotPose> photonPoseEstimator = dualCamera.getEstimatedPose(pose);
+      CameraSystem system = CameraSystem.getInstance();
       Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
-      double timestamp;
-      if(pose != null && pose != defaultPose && (DualCamera.hasTargets(dualCamera.getBack())) && !photonPoseEstimator.isEmpty())
+      if(pose != null && pose != defaultPose && system.hasTargets() && system.getTimeStamp() != -1)
       {
-      timestamp = result.getTimestampSeconds();
-      poseEstimator.addVisionMeasurement(photonPoseEstimator.get().estimatedPose.toPose2d(), photonPoseEstimator.get().timestampSeconds);
-      }
-      else if(pose != null && pose != defaultPose && DualCamera.hasTargets(dualCamera.getFront()) && !photonPoseEstimator.isEmpty()){
-      timestamp = result.getTimestampSeconds();
-       poseEstimator.addVisionMeasurement(photonPoseEstimator.get().estimatedPose.toPose2d(), timestamp);
+      poseEstimator.addVisionMeasurement(pose, system.getTimeStamp());
       }
       return new Pose2d();
   }
+  // Pose2d position = poseEstimator.update(gyro.getRotation2d(), getPositions());
+  //     Camera dualCamera = DualCamera.getInstance();
+  //     Optional<EstimatedRobotPose> photonPoseEstimator = dualCamera.getEstimatedPose(pose);
+  //     Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
+  //     double timestamp;
+  //     if(pose != null && pose != defaultPose && (DualCamera.hasTargets(dualCamera.getBack())) && !photonPoseEstimator.isEmpty())
+  //     {
+  //     timestamp = result.getTimestampSeconds();
+  //     poseEstimator.addVisionMeasurement(photonPoseEstimator.get().estimatedPose.toPose2d(), photonPoseEstimator.get().timestampSeconds);
+  //     }
+  //     else if(pose != null && pose != defaultPose && DualCamera.hasTargets(dualCamera.getFront()) && !photonPoseEstimator.isEmpty()){
+  //     timestamp = result.getTimestampSeconds();
+  //      poseEstimator.addVisionMeasurement(photonPoseEstimator.get().estimatedPose.toPose2d(), timestamp);
+  //     }
+  //     return new Pose2d();
 
   public void drive(double forward, double side, double rot) {
 
