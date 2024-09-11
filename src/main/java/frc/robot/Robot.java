@@ -83,6 +83,7 @@ public class Robot extends LoggedRobot {
     climber = Climber.getInstance();
     litty = LED.getInstance();
     camSystem = CameraSystem.getInstance();
+    // BackCam is at array position 0, FrontCam is at array positon 1
     camSystem.AddCamera(new PhotonCamera("BackCam"), new Transform3d(
         new Translation3d(-.31, .01, -0.375), new Rotation3d(0.0, Math.toRadians(30), Math.PI))
         );
@@ -147,11 +148,11 @@ public class Robot extends LoggedRobot {
   @Override
 
   public void robotPeriodic() {
-        Pose2d cameraPositionTele = dualCamera.calculateRobotPosition();
+        Pose2d cameraPositionTele = camSystem.calculateRobotPosition();
         PhotonPipelineResult result = dualCamera.getBackCameraResult(); 
 
 
-       Pose2d posTele = drivebase.updateOdometry(cameraPositionTele, result);
+       Pose2d posTele = drivebase.updateOdometry(cameraPositionTele);
 
         SmartDashboard.putNumber("Odometry X", posTele.getX());
         SmartDashboard.putNumber("Odometry Y", posTele.getY());
@@ -204,7 +205,7 @@ public class Robot extends LoggedRobot {
 
       
 
-      Pose2d cameraPosition = dualCamera.calculateRobotPosition();
+      Pose2d cameraPosition = camSystem.calculateRobotPosition();
       SmartDashboard.putNumber("Camera X Position", cameraPosition.getX());
       SmartDashboard.putNumber("Camera Y Position", cameraPosition.getY());
       SmartDashboard.putNumber("Camera Heading", cameraPosition.getRotation().getDegrees());
@@ -245,6 +246,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
+   
+    
      
 
      
@@ -263,11 +266,12 @@ public class Robot extends LoggedRobot {
   public void autonomousPeriodic() {
     
     intake.updatePose();
-    Pose2d cameraPosition = dualCamera.calculateRobotPosition();
+    //Pose2d cameraPosition = dualCamera.calculateRobotPosition();
+    Pose2d cameraPosition = camSystem.calculateRobotPosition();
     
    
-      PhotonPipelineResult result = dualCamera.getFrontCameraResult(); 
-      Pose2d pose = drivebase.updateOdometry(cameraPosition, result);
+    //PhotonPipelineResult result = dualCamera.getFrontCameraResult(); 
+      Pose2d pose = drivebase.updateOdometry(cameraPosition);
      
 
     SmartDashboard.putNumber("Auto X", drivebase.getPose().getX());
@@ -348,6 +352,15 @@ public class Robot extends LoggedRobot {
       drivebase.setDriveState(DriveState.SLOW);
     } else if (!CommandScheduler.getInstance().isScheduled(ampCommand)) {
       drivebase.setDriveState(DriveState.NORMAL);
+    }
+
+    if(driver.getLeftTriggerAxis() > 0)
+    {
+      Double yaw = camSystem.getYawForTag(0);
+        if(yaw !=null)
+        {
+          drivebase.rotateTo(xSpeed, ySpeed, yaw);
+        }
     }
 
     /* INTAKE CONTROLS */

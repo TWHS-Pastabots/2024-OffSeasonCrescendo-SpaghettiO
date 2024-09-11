@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Ports;
 import frc.robot.subsystems.vision.CameraSystem;
-import frc.robot.subsystems.vision.DualCamera;
+// import frc.robot.subsystems.vision.DualCamera;
 import frc.robot.Constants.DriveConstants;
 
 public class Drivebase extends SubsystemBase {
@@ -151,7 +151,7 @@ public class Drivebase extends SubsystemBase {
     poseEstimator.resetPosition(Rotation2d.fromDegrees(-gyro.getAngle()), getPositions(), getPose());
   }
 
-  public Pose2d updateOdometry(Pose2d pose, PhotonPipelineResult result){
+  public Pose2d updateOdometry(Pose2d pose){
       Pose2d position = poseEstimator.update(gyro.getRotation2d(), getPositions());
       CameraSystem system = CameraSystem.getInstance();
       Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
@@ -159,7 +159,7 @@ public class Drivebase extends SubsystemBase {
       {
       poseEstimator.addVisionMeasurement(pose, system.getTimeStamp());
       }
-      return new Pose2d();
+      return position;
   }
   // Pose2d position = poseEstimator.update(gyro.getRotation2d(), getPositions());
   //     Camera dualCamera = DualCamera.getInstance();
@@ -393,4 +393,8 @@ public class Drivebase extends SubsystemBase {
     return instance;
   }
 
+  public void tagAlign(Pose2d pose2d)
+  {
+
+  }
 }

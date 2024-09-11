@@ -150,7 +150,6 @@ public class CameraSystem{
         }
         return false;
     }
-    //MR SPARK DOES NOT APPROVE OF THIS HORRIBLE ASS CODE
     public double getTimeStamp() 
     {
         int cameraCount = 0;
@@ -162,6 +161,20 @@ public class CameraSystem{
             }
         }
         return -1;
+    }
+    // returns a Double Object, will need to grab out the double value from the object and check if it is null
+    public Double getYawForTag(int position){
+            if((getResult(position).getBestTarget().getFiducialId() == 3
+            || getResult(position).getBestTarget().getFiducialId() == 4 
+            || getResult(position).getBestTarget().getFiducialId() == 5
+            || getResult(position).getBestTarget().getFiducialId() == 9
+            || getResult(position).getBestTarget().getFiducialId() == 10))
+            {
+                Pose3d temp = calculatePoseFromCameraResult(getResult(position), offsets.get(position));
+                double yaw = temp.getRotation().getZ();
+                return yaw;
+            }
+            return null;
     }
     
     // Field coordinates for the april tags (converting inches to meters)
