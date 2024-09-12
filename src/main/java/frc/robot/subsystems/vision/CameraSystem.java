@@ -46,6 +46,10 @@ public class CameraSystem{
     public PhotonPipelineResult getResult(int position){
         return cameras.get(position).getLatestResult();
     }
+    public PhotonCamera getCamera(int position)
+    {
+        return cameras.get(position);
+    }
     // adds the camera, offset, and estimator to their arraylists; each camera, offset, and estimator have the same position in each arraylist
     public void AddCamera(PhotonCamera camera, Transform3d offset){
         cameras.add(camera);
