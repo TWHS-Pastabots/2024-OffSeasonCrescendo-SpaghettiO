@@ -68,21 +68,23 @@ public class CameraSystem{
         double rotationSumZ = 0;
         
         // Goes through every camera in the camera array list and checks if it sees a tag
-        while(cameraCount<cameras.size())
+        for(PhotonCamera cam : cameras)
         {
-            if(getResult(cameraCount).hasTargets())
+            if(cam.getLatestResult().hasTargets())
             {
                 // if the camera picks up a tag, it calculates the position from the tag and runs it through a pose estimator
-                Pose3d orig = calculatePoseFromCameraResult(getResult(cameraCount), offsets.get(cameraCount));
-                Pose3d temp = usePoseEstimator(cameraCount, orig.toPose2d()).get().estimatedPose;
-                // add the components of the pose 3d to the sums
+                Pose3d orig = calculatePoseFromCameraResult(cam.getLatestResult(), offsets.get(cameraCount));
+                Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
+                if(estimatedPose != null && !estimatedPose.isEmpty()){
+                    Pose3d temp = estimatedPose.get().estimatedPose;
+                    // add the components of the pose 3d to the sums
                 sumX += temp.getX();
                 sumY += temp.getY();
                 rotationSumx += temp.getRotation().getX();
                 rotationSumY += temp.getRotation().getY();
                 rotationSumZ += temp.getRotation().getZ();              
                 cameraTagCount++;     
-                
+                }
             }
             cameraCount++;
         
@@ -143,40 +145,46 @@ public class CameraSystem{
         return instance;
     }
 
-    // checks to see if the result sees any aprl tags
+    // checks to see if the result sees any april tags
     public boolean hasTargets(){
         int cameraCount = 0;
-        while(cameraCount < cameras.size() )
+       for(PhotonCamera cam : cameras)
         {
-            if(getResult(cameraCount).hasTargets()){
+            if(cam.getLatestResult().hasTargets()){
                 return true;
             } 
+            cameraCount++;
         }
         return false;
     }
     public double getTimeStamp() 
     {
         int cameraCount = 0;
-        while(cameraCount < cameras.size()){
-            if(getResult(cameraCount).hasTargets()){
-                Pose3d orig = calculatePoseFromCameraResult(getResult(cameraCount), offsets.get(cameraCount));
-                double temp = usePoseEstimator(cameraCount, orig.toPose2d()).get().timestampSeconds;
-                return temp;
+        for (PhotonCamera cam : cameras){
+            if(cam.getLatestResult().hasTargets()){
+                Pose3d orig = calculatePoseFromCameraResult(cam.getLatestResult(), offsets.get(cameraCount));
+                Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
+                if(estimatedPose != null && !estimatedPose.isEmpty())
+                    return estimatedPose.get().timestampSeconds;
             }
+            cameraCount++;
         }
         return -1;
     }
     // returns a Double Object, will need to grab out the double value from the object and check if it is null
     public Double getYawForTag(int position){
-            if((getResult(position).getBestTarget().getFiducialId() == 3
+            if(getResult(position).hasTargets() && (getResult(position).getBestTarget().getFiducialId() == 3
             || getResult(position).getBestTarget().getFiducialId() == 4 
             || getResult(position).getBestTarget().getFiducialId() == 5
             || getResult(position).getBestTarget().getFiducialId() == 9
             || getResult(position).getBestTarget().getFiducialId() == 10))
             {
                 Pose3d temp = calculatePoseFromCameraResult(getResult(position), offsets.get(position));
-                double yaw = temp.getRotation().getZ();
-                return yaw;
+                if(temp != null){
+                    double yaw = temp.getRotation().getZ();
+                    return yaw;
+                }
+                
             }
             return null;
     }

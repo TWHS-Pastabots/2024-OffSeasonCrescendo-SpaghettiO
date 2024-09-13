@@ -23,7 +23,7 @@ public class AmpCommand extends Command {
   @Override
   public void initialize() {
     launcher = Launcher.getInstance();
-
+    
     starttime = -1;
     ended = false;
     launcher.updatePose();

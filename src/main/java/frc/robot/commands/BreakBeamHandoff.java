@@ -24,9 +24,6 @@ public class BreakBeamHandoff extends Command {
   private double startTime;
   private double duration = .5;
 
-  private boolean intakeGood;
-  private double timestuff;
-
 
   public BreakBeamHandoff() {
     launcher = Launcher.getInstance();
@@ -35,8 +32,6 @@ public class BreakBeamHandoff extends Command {
 
     launcherHasRing = false;
     ended = false;
-    intakeGood = true;
-    timestuff = -1;
   }
 
   @Override

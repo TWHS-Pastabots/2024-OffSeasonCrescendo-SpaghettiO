@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.AltRevLauncher;
 import frc.robot.commands.AmpCommand;
-import frc.robot.commands.AutoHandoff;
 import frc.robot.commands.AutoLeftShot;
 import frc.robot.commands.AutoMidShot;
 import frc.robot.commands.AutoPreload;
@@ -37,7 +36,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.swerve.Drivebase;
 import frc.robot.subsystems.swerve.Drivebase.DriveState;
 import frc.robot.subsystems.vision.CameraSystem;
-//import frc.robot.subsystems.vision.VisionTablesListener;
+
 import frc.robot.subsystems.vision.DualCamera;
 
 import org.littletonrobotics.junction.LoggedRobot;
