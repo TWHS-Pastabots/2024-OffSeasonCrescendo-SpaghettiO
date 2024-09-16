@@ -36,9 +36,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.swerve.Drivebase;
 import frc.robot.subsystems.swerve.Drivebase.DriveState;
 import frc.robot.subsystems.vision.CameraSystem;
-
-import frc.robot.subsystems.vision.DualCamera;
-
 import org.littletonrobotics.junction.LoggedRobot;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -48,7 +45,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 public class Robot extends LoggedRobot {
-  // private DualCamera dualCamera;
+  //all the initialing for the systems
   private Drivebase drivebase;
   private Climber climber;
   private Intake intake;
@@ -58,7 +55,7 @@ public class Robot extends LoggedRobot {
   
   private static XboxController driver;
   private static XboxController operator;
-
+  //initialization of the auton chooser in the dashboard
   private Command m_autoSelected;
 
   private FoldOutCommand foldOutCommand;
@@ -70,12 +67,11 @@ public class Robot extends LoggedRobot {
 
   
 
-
+  //that is a chooser for the autons utilizing the sendableChooser which allows us to choose the auton commands
   private SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   @Override
   public void robotInit() {
-    //dualCamera = DualCamera.getInstance();
     drivebase = Drivebase.getInstance();
     launcher = Launcher.getInstance();
     intake = Intake.getInstance();
@@ -93,7 +89,7 @@ public class Robot extends LoggedRobot {
 
     driver = new XboxController(0);
     operator = new XboxController(1);
-
+    //initializing the commands to use in this class
     handoffCommand = new BreakBeamHandoff();
     shootCommand = new ShootCommand();
     autoSpeaker = new AutoSpeaker();
@@ -101,21 +97,18 @@ public class Robot extends LoggedRobot {
     foldOutCommand = new FoldOutCommand();
    
     
-
+    //all the commands to use in our autos. Not the paths to follow, but the shooting.
     NamedCommands.registerCommand("AutoSpeaker", autoSpeaker);
     NamedCommands.registerCommand("Handoff", new BreakBeamHandoff());
     NamedCommands.registerCommand("AutoLeftShot", new AutoLeftShot());
     NamedCommands.registerCommand("AutoRightShot", new AutoRightShot());
     NamedCommands.registerCommand("AutoMidShot", new AutoMidShot());
     NamedCommands.registerCommand("Celebrate", new Celebrate());
-    NamedCommands.registerCommand("RotateN155", new RotationCommand(-155));
-    NamedCommands.registerCommand("RotateN25", new RotationCommand(-25));
-    NamedCommands.registerCommand("Rotate220", new RotationCommand(220));
-    NamedCommands.registerCommand("Rotate180", new RotationCommand(180));
     NamedCommands.registerCommand("RevLauncher", new RevLauncher());
     NamedCommands.registerCommand("AutoPreload", new AutoPreload());
     NamedCommands.registerCommand("AltRevLauncher", new AltRevLauncher());
 
+    //adding actual pathings to the chooser so we can select what to run during the match
     m_chooser.addOption("P1 4L", new PathPlannerAuto("P1 4L"));
 
     m_chooser.addOption("P2 3L", new PathPlannerAuto("P2 3L"));
@@ -155,13 +148,7 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putNumber("Odometry X", posTele.getX());
         SmartDashboard.putNumber("Odometry Y", posTele.getY());
 
-        
-    
-
-
-
-
-
+      //this is getting the data from the cameras 
      if (camSystem.getCamera(0).isConnected()) {
             PhotonPipelineResult backResult = camSystem.getResult(0);      
             if (backResult.hasTargets()) {
@@ -179,24 +166,7 @@ public class Robot extends LoggedRobot {
                 SmartDashboard.putString("Back Camera Target", "No Targets");
             }
         } 
-        // if (camSystem.getCamera(1).isConnected())
-        //     PhotonPipelineResult frontResult = camSystem.getResult(0);
-            
-        //     if (frontResult.hasTargets()) {
-        //         PhotonTrackedTarget target = frontResult.getBestTarget();
-        //         Transform3d bestCameraToTarget = target.getBestCameraToTarget();
-        //         double distance  = bestCameraToTarget.getTranslation().getNorm();
-        //         SmartDashboard.putString("Front Camera Target", "Yes Targets");
-        //         SmartDashboard.putNumber("Front to Target", distance);
-        //         SmartDashboard.putNumber("Front Camera Target Yaw", target.getYaw());
-        //         SmartDashboard.putNumber("Front Camera Target Pitch", target.getPitch());
-        //         SmartDashboard.putNumber("Front Camera Target Area", target.getArea());
-        //         SmartDashboard.putNumber("ID", target.getFiducialId());
-
-        //     } else if(frontResult.hasTargets() == false) {
-        //         SmartDashboard.putString("Front Camera Target", "No Targets");
-        //     }
-        // } 
+        
 
 
 
@@ -214,12 +184,10 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
     drivebase.periodic();
 
-    //visTables.printDetects();
+    
     SmartDashboard.putNumber("Gyro Angle:", (drivebase.getHeading() + 90) % 360);
     SmartDashboard.putNumber("X-coordinate", drivebase.getPose().getX());
     SmartDashboard.putNumber("Y-coordinate", drivebase.getPose().getY());
-
-    //SmartDashboard.putString("Alliance", DriverStation.getAlliance().toString());
 
     SmartDashboard.putNumber("Flipper Position", intake.getFlipperPosition());
     SmartDashboard.putNumber("Launcher Position", launcher.getPosition());
@@ -231,23 +199,15 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putBoolean("Intake Breakbeam", intake.getBreakBeam());
 
     SmartDashboard.putBoolean("Brownout", launcher.hasBrownedOut());
-
-    //SmartDashboard.putNumber("Test Position", launcher.getTestPosition());
     SmartDashboard.putNumber("Speaker Position", launcher.getSpeakerPosition());
 
 
 
     SmartDashboard.putNumber("LeBron Position", launcher.getAmpPostion());
-    //SmartDashboard.putNumber("Lebron Current?", launcher.getLebronCurrent());
   }
 
   @Override
   public void autonomousInit() {
-   
-    
-     
-
-     
     m_autoSelected = m_chooser.getSelected();
 
     drivebase.resetOdometry(PathPlannerAuto.getStaringPoseFromAutoFile(m_chooser.getSelected().getName()));
@@ -263,22 +223,14 @@ public class Robot extends LoggedRobot {
   public void autonomousPeriodic() {
     
     intake.updatePose();
-    //Pose2d cameraPosition = dualCamera.calculateRobotPosition();
-    Pose2d cameraPosition = camSystem.calculateRobotPosition();
     
-   
-    //PhotonPipelineResult result = dualCamera.getFrontCameraResult(); 
-      Pose2d pose = drivebase.updateOdometry(cameraPosition);
-     
+    Pose2d cameraPosition = camSystem.calculateRobotPosition(); 
+    Pose2d pose = drivebase.updateOdometry(cameraPosition);
 
     SmartDashboard.putNumber("Auto X", drivebase.getPose().getX());
     SmartDashboard.putNumber("Auto Y", drivebase.getPose().getY());
     SmartDashboard.putNumber("Odometry X", pose.getX());
     SmartDashboard.putNumber("Odometry Y", pose.getY());
-
-
-
-    
   }
 
   @Override
@@ -298,7 +250,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
     intake.updatePose();
-   //launcher.updatePose();
 
     /* DRIVE CONTROLS */
 
@@ -323,12 +274,11 @@ public class Robot extends LoggedRobot {
       drivebase.currHeading = -1;
       drivebase.rotateTo(xSpeed, ySpeed, 90);
     } else if (driver.getLeftTriggerAxis() > 0) {
-      // drivebase.holdHeading(xSpeed, ySpeed);
     } else {
       drivebase.currHeading = -1;
       drivebase.drive(xSpeed, ySpeed, rot);
     }
-    // drivebase.lockWheels();
+    
 
     
 
@@ -356,7 +306,9 @@ public class Robot extends LoggedRobot {
       Double yaw = camSystem.getYawForTag(0);
         if(yaw !=null)
         {
-          drivebase.rotateTo(xSpeed, ySpeed, yaw);
+          drivebase.drive(xSpeed,ySpeed, -yaw);
+        }else{
+          drivebase.drive(xSpeed, ySpeed, rot);
         }
     }
 
@@ -381,7 +333,6 @@ public class Robot extends LoggedRobot {
       launcher.moveAmp();
       launcher.setLauncherOff();
       launcher.setFlickOff();
-      //litty.setBlue();
     }
 
     if (operator.getRightStickButtonPressed()) {
@@ -403,16 +354,10 @@ public class Robot extends LoggedRobot {
 
     /* LAUNCHER CONTROLS */
 
-    // if(driver.getRightStickButtonPressed()){
-    //   launcher.setLauncherState(LauncherState.TEST);
-    // }
-
     if (operator.getLeftStickButtonPressed()) {
-      // launcher.increasePosition();
       launcher.increaseIncrement();
     } else if (operator.getRightStickButtonPressed()) {
       launcher.decreaseInrement();
-      // launcher.decreasePosition();
     }
 
     if (operator.getPOV() == 0) {
@@ -465,8 +410,6 @@ public class Robot extends LoggedRobot {
       shootCommand.cancel();
       ampCommand.cancel();
       handoffCommand.cancel();
-      // litty.setBlue();
-
     }
     
   }
