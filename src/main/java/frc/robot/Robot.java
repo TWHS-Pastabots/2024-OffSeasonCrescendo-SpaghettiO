@@ -256,11 +256,11 @@ public class Robot extends LoggedRobot {
     if (!ampCommand.isScheduled()) {
       launcher.moveAmp();
     }
-
+    //setting inputs for driving through the driver controller
     double ySpeed = drivebase.inputDeadband(-driver.getLeftX());
     double xSpeed = drivebase.inputDeadband(driver.getLeftY());
     double rot = drivebase.inputDeadband(-driver.getRightX());
-
+    //using buttons to rotate the robot by increments of 90 degrees
     if (driver.getAButton()) {
       drivebase.currHeading = -1;
       drivebase.rotateTo(xSpeed, ySpeed, 180);
@@ -300,14 +300,16 @@ public class Robot extends LoggedRobot {
     } else if (!CommandScheduler.getInstance().isScheduled(ampCommand)) {
       drivebase.setDriveState(DriveState.NORMAL);
     }
-
+    //getting yaw from the tag to rotate towards it. The robot will allign itself with the 
     if(driver.getLeftTriggerAxis() > 0)
     {
       Double yaw = camSystem.getYawForTag(0);
         if(yaw !=null)
         {
-          drivebase.drive(xSpeed,ySpeed, -yaw);
+          drivebase.currHeading = -1;
+          drivebase.drive(xSpeed,ySpeed, -yaw * 4.5 * Constants.DriveConstants.kMaxAngularSpeed);
         }else{
+          drivebase.currHeading = -1;
           drivebase.drive(xSpeed, ySpeed, rot);
         }
     }
