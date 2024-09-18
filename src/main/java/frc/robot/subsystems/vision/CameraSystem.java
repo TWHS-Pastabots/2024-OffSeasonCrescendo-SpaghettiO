@@ -15,10 +15,12 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 public class CameraSystem{
@@ -74,7 +76,8 @@ public class CameraSystem{
             {
                 // if the camera picks up a tag, it calculates the position from the tag and runs it through a pose estimator
                 Pose3d orig = calculatePoseFromCameraResult(cam.getLatestResult(), offsets.get(cameraCount));
-                Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
+                if(orig != null){
+                    Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
                 if(estimatedPose != null && !estimatedPose.isEmpty()){
                     Pose3d temp = estimatedPose.get().estimatedPose;
                     // add the components of the pose 3d to the sums
@@ -84,6 +87,7 @@ public class CameraSystem{
                 rotationSumY += temp.getRotation().getY();
                 rotationSumZ += temp.getRotation().getZ();              
                 cameraTagCount++;     
+                }
                 }
             }
             cameraCount++;
@@ -163,18 +167,20 @@ public class CameraSystem{
         for (PhotonCamera cam : cameras){
             if(cam.getLatestResult().hasTargets()){
                 Pose3d orig = calculatePoseFromCameraResult(cam.getLatestResult(), offsets.get(cameraCount));
-                Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
-                if(estimatedPose != null && !estimatedPose.isEmpty())
-                    return estimatedPose.get().timestampSeconds;
+                if(orig != null){
+                    Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
+                    if(estimatedPose != null && !estimatedPose.isEmpty())
+                        return estimatedPose.get().timestampSeconds;
+                }
+                
             }
             cameraCount++;
         }
         return -1;
     }
-    // returns a Double Object, will need to grab out the double value from the object and check if it is null
+    // returns a Double Object, so need check if it is null
     public Double getYawForTag(int position){
-            if(getResult(position).hasTargets() && (getResult(position).getBestTarget().getFiducialId() == 3
-            || getResult(position).getBestTarget().getFiducialId() == 4 
+            if(getResult(position).hasTargets() && (getResult(position).getBestTarget().getFiducialId() == 4 
             || getResult(position).getBestTarget().getFiducialId() == 5
             || getResult(position).getBestTarget().getFiducialId() == 9
             || getResult(position).getBestTarget().getFiducialId() == 10))
@@ -184,9 +190,16 @@ public class CameraSystem{
                     return target.getYaw();
                 }
                 
+            } else if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 3 ){
+                List<PhotonTrackedTarget> targets = getResult(position).getTargets();
+                for(PhotonTrackedTarget target : targets){
+                    if(target.getFiducialId() == 4){
+                        return target.getYaw();
+                    }
+                }
             }
             return null;
-    }
+    } 
     
     // Field coordinates for the april tags (converting inches to meters)
     private void initializeFiducialMap(double inchesToMeters) {

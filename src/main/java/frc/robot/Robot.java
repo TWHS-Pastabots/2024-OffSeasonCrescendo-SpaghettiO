@@ -108,8 +108,25 @@ public class Robot extends LoggedRobot {
     NamedCommands.registerCommand("AltRevLauncher", new AltRevLauncher());
 
     //adding actual pathings to the chooser so we can select what to run during the match
-    m_chooser.addOption("P1 4L", new PathPlannerAuto("P1 4L"));
 
+    /*NAMING CONVENTION FOR THE PATHS: Px #y
+     * WORKS FOR BOTH SIDES
+     * x:
+     * P1 - starts at the speaker at the side of the AMP station
+     * P2 - middle of the speaker subwoofer
+     * P3 - on the side of the source 
+     * 
+     * #- the amount of total rings the path shoots 
+     * 3 - preload + 2 rings from the direction of the movement
+     * 4 - preload + all of the rings that are not on the midline
+     * 
+     * y - direction of first pickup
+     * L - goes to amp ring  (works on both sides)
+     * R - goes to stage ring pickup  (Works on both sides)
+     * M - goes to the middle one (Works on both sides)
+     * if mix of 2 letters then it goes to letter 1 first then letter 2
+     */
+    m_chooser.addOption("P1 4L", new PathPlannerAuto("P1 4L"));
     m_chooser.addOption("P2 3L", new PathPlannerAuto("P2 3L"));
     m_chooser.addOption("P2 3ML", new PathPlannerAuto("P2 3ML"));
     m_chooser.addOption("P2 3MR", new PathPlannerAuto("P2 3MR"));
@@ -118,19 +135,12 @@ public class Robot extends LoggedRobot {
     m_chooser.addOption("P2 4L", new PathPlannerAuto("P2 4L"));
     m_chooser.addOption("P2 4R Mid", new PathPlannerAuto("P2 4R Mid"));
     m_chooser.addOption("P2 4R", new PathPlannerAuto("P2 4R"));
-    m_chooser.addOption("Red P2 4R", new PathPlannerAuto("Red P2 4R"));
-    m_chooser.addOption("Red P2 4R Mid", new PathPlannerAuto("Red P2 4R Mid"));
-    m_chooser.addOption("Red P2 3MR Mid", new PathPlannerAuto("Red P2 3MR Mid"));
-    m_chooser.addOption("Semi2", new PathPlannerAuto("Semi2"));
     m_chooser.addOption("VtestAuto", new PathPlannerAuto("VtestAuto"));
     m_chooser.addOption("Help", new PathPlannerAuto("Help"));
     m_chooser.addOption("Mid:ine", new PathPlannerAuto("MidLine"));
-    
     m_chooser.addOption("FreakyMid", new PathPlannerAuto("FreakyMid"));
     m_chooser.addOption("P2 Middle", new PathPlannerAuto("P2 Middle"));
-
     m_chooser.addOption("P3 4R", new PathPlannerAuto("P3 4R"));
-
     m_chooser.addOption("P3UnderStage", new PathPlannerAuto("P3UnderStage"));
     SmartDashboard.putData("Auto choices", m_chooser);
 
@@ -302,7 +312,7 @@ public class Robot extends LoggedRobot {
       Double yaw = camSystem.getYawForTag(0);
         if(yaw !=null)
         {
-          rot =  -yaw * .001 * Constants.DriveConstants.kMaxAngularSpeed;
+          rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
         }
     }
     drivebase.drive(xSpeed, ySpeed, rot);
