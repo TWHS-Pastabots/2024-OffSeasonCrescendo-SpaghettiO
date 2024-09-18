@@ -179,10 +179,9 @@ public class CameraSystem{
             || getResult(position).getBestTarget().getFiducialId() == 9
             || getResult(position).getBestTarget().getFiducialId() == 10))
             {
-                Pose3d temp = calculatePoseFromCameraResult(getResult(position), offsets.get(position));
-                if(temp != null){
-                    double yaw = temp.getRotation().getZ();
-                    return yaw;
+                PhotonTrackedTarget target = getResult(position).getBestTarget();
+                if(target != null){
+                    return target.getYaw();
                 }
                 
             }

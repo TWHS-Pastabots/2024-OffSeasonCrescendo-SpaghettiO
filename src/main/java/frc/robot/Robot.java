@@ -16,7 +16,6 @@ import frc.robot.commands.Celebrate;
 import frc.robot.commands.FoldOutCommand;
 
 import frc.robot.commands.RevLauncher;
-import frc.robot.commands.RotationCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.IO.LED;
 import frc.robot.subsystems.climber.Climber;
@@ -141,14 +140,13 @@ public class Robot extends LoggedRobot {
 
   public void robotPeriodic() {
         Pose2d cameraPositionTele = camSystem.calculateRobotPosition();
-        // PhotonPipelineResult result = dualCamera.getBackCameraResult(); not used anymore
 
        Pose2d posTele = drivebase.updateOdometry(cameraPositionTele);
 
         SmartDashboard.putNumber("Odometry X", posTele.getX());
         SmartDashboard.putNumber("Odometry Y", posTele.getY());
 
-      //this is getting the data from the cameras 
+      //this is getting the data from the cameras through the cameraSystem class 
      if (camSystem.getCamera(0).isConnected()) {
             PhotonPipelineResult backResult = camSystem.getResult(0);      
             if (backResult.hasTargets()) {
@@ -171,20 +169,16 @@ public class Robot extends LoggedRobot {
 
 
       
-
+      //testing the valuies that the camera gives us and outputing it into the dashboard
       Pose2d cameraPosition = camSystem.calculateRobotPosition();
       SmartDashboard.putNumber("Camera X Position", cameraPosition.getX());
       SmartDashboard.putNumber("Camera Y Position", cameraPosition.getY());
       SmartDashboard.putNumber("Camera Heading", cameraPosition.getRotation().getDegrees());
-
-
-      
-
-
+    
     CommandScheduler.getInstance().run();
     drivebase.periodic();
 
-    
+    //putting all of the info from the subsystems into the dashvoard so we can test things
     SmartDashboard.putNumber("Gyro Angle:", (drivebase.getHeading() + 90) % 360);
     SmartDashboard.putNumber("X-coordinate", drivebase.getPose().getX());
     SmartDashboard.putNumber("Y-coordinate", drivebase.getPose().getY());
@@ -208,12 +202,13 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
+    //getting the value we chose from the dashboard and putting it into motion in the auton
     m_autoSelected = m_chooser.getSelected();
 
     drivebase.resetOdometry(PathPlannerAuto.getStaringPoseFromAutoFile(m_chooser.getSelected().getName()));
     
     
-
+//schedules the command so it actually begins moving
     if (m_autoSelected != null) {
       m_autoSelected.schedule();
     }
@@ -221,9 +216,10 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    
+    //updating the intake for the autointake command
     intake.updatePose();
-    
+    //using cameras to calculate the robot position instead of odometry.
+    //we use a mix of odometry + camera positions to calculate the robot position
     Pose2d cameraPosition = camSystem.calculateRobotPosition(); 
     Pose2d pose = drivebase.updateOdometry(cameraPosition);
 
@@ -235,7 +231,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-
+    //as soon as we begin teleop we desable the auton selection
     litty.setBlue();
     if (m_autoSelected != null) {
       m_autoSelected.cancel();
@@ -307,15 +303,33 @@ public class Robot extends LoggedRobot {
         if(yaw !=null)
         {
           drivebase.currHeading = -1;
-          drivebase.drive(xSpeed,ySpeed, -yaw * 4.5 * Constants.DriveConstants.kMaxAngularSpeed);
+          drivebase.drive(xSpeed,ySpeed, -yaw * 1.1 * Constants.DriveConstants.kMaxAngularSpeed);
         }else{
           drivebase.currHeading = -1;
           drivebase.drive(xSpeed, ySpeed, rot);
         }
     }
-
-    /* INTAKE CONTROLS */
-
+    /* OPERATOR CONTROLS */
+    /*Operator controller map
+     * Y - launching the ring out of the shooter
+     * B - Used for testing in the pit. Just spits out the ring.
+     * A - Folds out the robot if the ring is stuck or something
+     * X - Intake from the launcher (source type intake)
+     *
+     * RB - starts the handoff command
+     * LB - brings the robot back to hover mode
+     *
+     * LeftStick - decrease the launcher position
+     * RightStick - increase the launcher position
+     *
+     * UP Arrow - setting launcher to speaker position
+     * Right Arrow - setting launcher to amp position
+     * Down Arrow - setting the launcher to tossing position
+     * Left Arrow - Longshot position
+     *
+     * Left back button - cancels every command on the robot
+     * right back button - sets the robot up to amp
+     */
     if (operator.getRightBumper()) {
       handoffCommand.schedule();
     }
@@ -355,13 +369,6 @@ public class Robot extends LoggedRobot {
     }
 
     /* LAUNCHER CONTROLS */
-
-    if (operator.getLeftStickButtonPressed()) {
-      launcher.increaseIncrement();
-    } else if (operator.getRightStickButtonPressed()) {
-      launcher.decreaseInrement();
-    }
-
     if (operator.getPOV() == 0) {
       launcher.setLauncherState(LauncherState.SPEAKER);
     }
@@ -374,16 +381,10 @@ public class Robot extends LoggedRobot {
     if (operator.getPOV() == 270) {
       launcher.setLauncherState(LauncherState.LONG);
     }
-
-      
-
      if (operator.getAButton()) {
       foldOutCommand.schedule();
       intake.setIntakeState(IntakeState.GROUND);
      }
-
-   
-
     if (operator.getXButton()) {
       launcher.setLauncherState(LauncherState.TEST);
       launcher.setReverseLauncherOn();
