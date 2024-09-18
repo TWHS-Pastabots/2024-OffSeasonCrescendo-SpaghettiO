@@ -257,23 +257,23 @@ public class Robot extends LoggedRobot {
     double xSpeed = drivebase.inputDeadband(driver.getLeftY());
     double rot = drivebase.inputDeadband(-driver.getRightX());
     //using buttons to rotate the robot by increments of 90 degrees
-    if (driver.getAButton()) {
-      drivebase.currHeading = -1;
-      drivebase.rotateTo(xSpeed, ySpeed, 180);
-    } else if (driver.getBButton()) {
-      drivebase.currHeading = -1;
-      drivebase.rotateTo(xSpeed, ySpeed, 270);
-    } else if (driver.getYButton()) {
-      drivebase.currHeading = -1;
-      drivebase.rotateTo(xSpeed, ySpeed, 0);
-    } else if (driver.getXButton()) {
-      drivebase.currHeading = -1;
-      drivebase.rotateTo(xSpeed, ySpeed, 90);
-    } else if (driver.getLeftTriggerAxis() > 0) {
-    } else {
-      drivebase.currHeading = -1;
-      drivebase.drive(xSpeed, ySpeed, rot);
-    }
+    // if (driver.getAButton()) {
+    //   drivebase.currHeading = -1;
+    //   drivebase.rotateTo(xSpeed, ySpeed, 180);
+    // } else if (driver.getBButton()) {
+    //   drivebase.currHeading = -1;
+    //   drivebase.rotateTo(xSpeed, ySpeed, 270);
+    // } else if (driver.getYButton()) {
+    //   drivebase.currHeading = -1;
+    //   drivebase.rotateTo(xSpeed, ySpeed, 0);
+    // } else if (driver.getXButton()) {
+    //   drivebase.currHeading = -1;
+    //   drivebase.rotateTo(xSpeed, ySpeed, 90);
+    // } else if (driver.getLeftTriggerAxis() > 0) {
+    // } else {
+    //   drivebase.currHeading = -1;
+    //   drivebase.drive(xSpeed, ySpeed, rot);
+    // }
     
 
     
@@ -302,13 +302,10 @@ public class Robot extends LoggedRobot {
       Double yaw = camSystem.getYawForTag(0);
         if(yaw !=null)
         {
-          drivebase.currHeading = -1;
-          drivebase.drive(xSpeed,ySpeed, -yaw * 1.1 * Constants.DriveConstants.kMaxAngularSpeed);
-        }else{
-          drivebase.currHeading = -1;
-          drivebase.drive(xSpeed, ySpeed, rot);
+          rot =  -yaw * .001 * Constants.DriveConstants.kMaxAngularSpeed;
         }
     }
+    drivebase.drive(xSpeed, ySpeed, rot);
     /* OPERATOR CONTROLS */
     /*Operator controller map
      * Y - launching the ring out of the shooter
