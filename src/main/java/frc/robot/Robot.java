@@ -153,6 +153,13 @@ public class Robot extends LoggedRobot {
 
        Pose2d posTele = drivebase.updateOdometry(cameraPositionTele);
 
+       if(camSystem.getTargetRange(0) != null){
+          SmartDashboard.putNumber("Target Range Smart", camSystem.getTargetRange(0));
+
+
+       }
+
+
         SmartDashboard.putNumber("Odometry X", posTele.getX());
         SmartDashboard.putNumber("Odometry Y", posTele.getY());
 
@@ -310,9 +317,13 @@ public class Robot extends LoggedRobot {
     if(driver.getLeftTriggerAxis() > 0)
     {
       Double yaw = camSystem.getYawForTag(0);
+      Double targetRange = camSystem.getTargetRange(0);
         if(yaw !=null)
         {
           rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
+        }
+        if(targetRange != null && xSpeed == 0){
+          xSpeed = (2.0 - targetRange) * .01 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
         }
     }
     drivebase.drive(xSpeed, ySpeed, rot);

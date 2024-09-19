@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -121,6 +122,8 @@ public class CameraSystem{
     private Pose3d calculatePoseFromCameraResult(PhotonPipelineResult result, Transform3d cameraOffset) {
         if (result != null && result.hasTargets()) {
             PhotonTrackedTarget target = result.getBestTarget();
+            Transform3d fieldToCamera = result.getMultiTagResult().estimatedPose.best;
+            
             
                 
             // gets the position of the april tag scanned
@@ -181,9 +184,7 @@ public class CameraSystem{
     // returns a Double Object, so need check if it is null
     public Double getYawForTag(int position){
             if(getResult(position).hasTargets() && (getResult(position).getBestTarget().getFiducialId() == 4 
-            || getResult(position).getBestTarget().getFiducialId() == 5
-            || getResult(position).getBestTarget().getFiducialId() == 9
-            || getResult(position).getBestTarget().getFiducialId() == 10))
+            || getResult(position).getBestTarget().getFiducialId() == 5))
             {
                 PhotonTrackedTarget target = getResult(position).getBestTarget();
                 if(target != null){
@@ -200,7 +201,21 @@ public class CameraSystem{
             }
             return null;
     } 
-    
+    public Double getTargetRange(int position){
+        Double targetRange = null;
+        if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 4){
+            targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 57.13 * 0.0254, -offsets.get(position).getRotation().getY(), Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
+        }
+        else if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 3){
+            List<PhotonTrackedTarget> targets = getResult(position).getTargets();
+                for(PhotonTrackedTarget target : targets){
+                    if(target.getFiducialId() == 4){
+                        targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 57.13 * 0.0254, -offsets.get(position).getRotation().getY(), Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
+                    }
+                }
+        }
+        return targetRange;
+    }
     // Field coordinates for the april tags (converting inches to meters)
     private void initializeFiducialMap(double inchesToMeters) {
         fiducialMap.put(1, new Pose3d(593.68 * inchesToMeters, 9.68 * inchesToMeters, 53.38 * inchesToMeters, new Rotation3d(0.0, 0.0, Math.toRadians(120))));
