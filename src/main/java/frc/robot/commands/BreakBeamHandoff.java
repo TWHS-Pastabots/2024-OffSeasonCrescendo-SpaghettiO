@@ -96,7 +96,7 @@ public class BreakBeamHandoff extends Command {
   public void end(boolean interrupted) {
     launcher.setFlickOff();
     launcher.setLauncherState(LauncherState.HOVER);
-    intake.setIntakeState(IntakeState.HOLD);
+    intake.setIntakeState(IntakeState.STOP);
     launcher.updatePose();
     intake.setRollerOff();
     launcher.setLauncherOff();

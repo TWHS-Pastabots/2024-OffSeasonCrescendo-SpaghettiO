@@ -1,5 +1,22 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.LoggedRobot;
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,7 +31,6 @@ import frc.robot.commands.AutoSpeaker;
 import frc.robot.commands.BreakBeamHandoff;
 import frc.robot.commands.Celebrate;
 import frc.robot.commands.FoldOutCommand;
-
 import frc.robot.commands.RevLauncher;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.IO.LED;
@@ -22,26 +38,11 @@ import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.launcher.Launcher.LauncherState;
 import frc.robot.subsystems.launcher.Launcher.AmpMotorPos;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.subsystems.launcher.Launcher.LauncherState;
 import frc.robot.subsystems.swerve.Drivebase;
 import frc.robot.subsystems.swerve.Drivebase.DriveState;
 import frc.robot.subsystems.vision.CameraSystem;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
-
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 public class Robot extends LoggedRobot {
   //all the initialing for the systems
@@ -54,6 +55,8 @@ public class Robot extends LoggedRobot {
   
   private static XboxController driver;
   private static XboxController operator;
+  private static GenericHID mts;
+  private static Joystick joystick;
   //initialization of the auton chooser in the dashboard
   private Command m_autoSelected;
 
@@ -80,7 +83,7 @@ public class Robot extends LoggedRobot {
     // BackCam is at array position 0, FrontCam is at array positon 1
     camSystem.AddCamera(new PhotonCamera("BackCam"), new Transform3d(
         new Translation3d(-.31, .01, -0.375), new Rotation3d(0.0, Math.toRadians(30), Math.PI))
-        );
+        ,  true);
     // camSystem.AddCamera(new PhotonCamera("FrontCam"),new Transform3d(
     //     new Translation3d(.325, -.275, 0.24), new Rotation3d(0.0, Math.toRadians(30), Math.toRadians(0.0))) 
     //     );
@@ -88,6 +91,8 @@ public class Robot extends LoggedRobot {
 
     driver = new XboxController(0);
     operator = new XboxController(1);
+    mts = new GenericHID(2);
+    joystick = new Joystick(2);
     //initializing the commands to use in this class
     handoffCommand = new BreakBeamHandoff();
     shootCommand = new ShootCommand();
@@ -270,9 +275,9 @@ public class Robot extends LoggedRobot {
       launcher.moveAmp();
     }
     //setting inputs for driving through the driver controller
-    double ySpeed = drivebase.inputDeadband(-driver.getLeftX());
-    double xSpeed = drivebase.inputDeadband(driver.getLeftY());
-    double rot = drivebase.inputDeadband(-driver.getRightX());
+    // double ySpeed = drivebase.inputDeadband(-driver.getLeftX());
+    // double xSpeed = drivebase.inputDeadband(driver.getLeftY());
+    // double rot = drivebase.inputDeadband(-driver.getRightX());
     //using buttons to rotate the robot by increments of 90 degrees
     // if (driver.getAButton()) {
     //   drivebase.currHeading = -1;
@@ -292,6 +297,72 @@ public class Robot extends LoggedRobot {
     //   drivebase.drive(xSpeed, ySpeed, rot);
     // }
     
+    if(mts.getRawButton(1))
+    {
+      handoffCommand.schedule();
+      if(handoffCommand.isFinished()){
+        launcher.setLauncherState(LauncherState.HOVER);
+        intake.setIntakeState(IntakeState.STOP);
+
+      }
+      SmartDashboard.putString("Button 1 Pressed", "Button 1 Pressed");
+    }else {
+          SmartDashboard.putString("Button 1 Pressed", "No 1");
+
+    }
+    if(mts.getRawButton(2))
+    {
+    launcher.setLauncherState(LauncherState.LONG);
+    launcher.updatePose();
+    SmartDashboard.putString("Button 2 Pressed", "Button 2 Pressed");
+
+    }else{
+          SmartDashboard.putString("Button 2 Pressed", "No 2");
+
+    }
+    if(mts.getRawButton(3))
+    {
+    shootCommand.initialize();
+    shootCommand.schedule();
+    SmartDashboard.putString("Button 3 Pressed", "Button 3 Pressed");
+
+    }else{
+    SmartDashboard.putString("Button 3 Pressed", "No 3");
+
+    }
+    if(mts.getRawButton(4))
+    {
+    launcher.setLauncherState(LauncherState.TEST);
+    launcher.setReverseLauncherOn();
+    launcher.setFlickerReverse();
+    SmartDashboard.putString("Button 4 Pressed", "Button 4 Pressed");
+
+    }else{
+    SmartDashboard.putString("Button 4 Pressed", "No 4");
+      launcher.setLauncherOff();
+      launcher.setFlickOff();
+
+    }
+    if(mts.getRawButton(5))
+    {
+      // foldOutCommand.schedule();
+      // intake.setIntakeState(IntakeState.GROUND);
+      // launcher.setLauncherState(LauncherState.TEST);
+      // launcher.eject();
+      // launcher.setFlickerPartial();
+      SmartDashboard.putString("Button 5 Pressed", "Button 5 Pressed");
+
+    }else{
+      SmartDashboard.putString("Button 5 Pressed", "No 5");
+
+    }
+  double ySpeed = drivebase.inputDeadband(-joystick.getX()*.25);
+    // -driver.getLeftX()
+  double xSpeed = drivebase.inputDeadband(joystick.getY()*.25);
+  // driver.getLeftY()
+  double rot = drivebase.inputDeadband(joystick.getZ()*.25);
+
+  
 
     
 

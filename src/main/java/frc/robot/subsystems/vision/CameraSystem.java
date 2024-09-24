@@ -30,6 +30,7 @@ public class CameraSystem{
     private ArrayList<PhotonCamera> cameras;
     private ArrayList<Transform3d> offsets;
     private ArrayList<PhotonPoseEstimator> estimators;
+    private ArrayList<Boolean> hasAprilTagDetection;
     public static final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     
 
@@ -41,6 +42,7 @@ public class CameraSystem{
         cameras = new ArrayList<PhotonCamera>();
         offsets  = new ArrayList<Transform3d>();
         estimators = new ArrayList<PhotonPoseEstimator>();
+        hasAprilTagDetection = new ArrayList<Boolean>();
 
         // Initialize fiducial map with Pose3d
         initializeFiducialMap(inchesToMeters);
@@ -53,11 +55,15 @@ public class CameraSystem{
     {
         return cameras.get(position);
     }
+    public boolean CameraHasAprilTagDetection(int position){
+        return hasAprilTagDetection.get(position);
+    }
     // adds the camera, offset, and estimator to their arraylists; each camera, offset, and estimator have the same position in each arraylist
-    public void AddCamera(PhotonCamera camera, Transform3d offset){
+    public void AddCamera(PhotonCamera camera, Transform3d offset, boolean hasAprilTagDetection){
         cameras.add(camera);
         offsets.add(offset);
         estimators.add(new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, offset));
+        this.hasAprilTagDetection.add(hasAprilTagDetection);
     }
     // calculates robot position
      public Pose2d calculateRobotPosition() {
@@ -73,22 +79,22 @@ public class CameraSystem{
         // Goes through every camera in the camera array list and checks if it sees a tag
         for(PhotonCamera cam : cameras)
         {
-            if(cam.getLatestResult().hasTargets())
+            if(cam.getLatestResult().hasTargets() && CameraHasAprilTagDetection(cameraCount))
             {
                 // if the camera picks up a tag, it calculates the position from the tag and runs it through a pose estimator
                 Pose3d orig = calculatePoseFromCameraResult(cam.getLatestResult(), offsets.get(cameraCount));
                 if(orig != null){
                     Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
-                if(estimatedPose != null && !estimatedPose.isEmpty()){
-                    Pose3d temp = estimatedPose.get().estimatedPose;
-                    // add the components of the pose 3d to the sums
-                sumX += temp.getX();
-                sumY += temp.getY();
-                rotationSumx += temp.getRotation().getX();
-                rotationSumY += temp.getRotation().getY();
-                rotationSumZ += temp.getRotation().getZ();              
-                cameraTagCount++;     
-                }
+                    if(estimatedPose != null && !estimatedPose.isEmpty()){
+                        Pose3d temp = estimatedPose.get().estimatedPose;
+                        // add the components of the pose 3d to the sums
+                        sumX += temp.getX();
+                        sumY += temp.getY();
+                        rotationSumx += temp.getRotation().getX();
+                        rotationSumY += temp.getRotation().getY();
+                        rotationSumZ += temp.getRotation().getZ();              
+                        cameraTagCount++;     
+                    }
                 }
             }
             cameraCount++;
@@ -122,12 +128,16 @@ public class CameraSystem{
     private Pose3d calculatePoseFromCameraResult(PhotonPipelineResult result, Transform3d cameraOffset) {
         if (result != null && result.hasTargets()) {
             PhotonTrackedTarget target = result.getBestTarget();
-            Transform3d fieldToCamera = result.getMultiTagResult().estimatedPose.best;
-            
+            MultiTargetPNPResult pnpResult = result.getMultiTagResult();
             
                 
             // gets the position of the april tag scanned
             Pose3d fiducialPose = fiducialMap.get(target.getFiducialId());
+
+            if(pnpResult.estimatedPose.isPresent)
+            {
+                Transform3d fieldToCamera = pnpResult.estimatedPose.best;
+            }
 
             if (fiducialPose != null) {
                 // calcuates the april tag position to the camera
