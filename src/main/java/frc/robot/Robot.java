@@ -296,15 +296,17 @@ public class Robot extends LoggedRobot {
     //   drivebase.currHeading = -1;
     //   drivebase.drive(xSpeed, ySpeed, rot);
     // }
-    
+
+   
     if(mts.getRawButton(1))
     {
+      intake.setRollerPower();
       handoffCommand.schedule();
-      if(handoffCommand.isFinished()){
-        launcher.setLauncherState(LauncherState.HOVER);
-        intake.setIntakeState(IntakeState.STOP);
+      // if(handoffCommand.isFinished()){
+      //   // launcher.setLauncherState(LauncherState.HOVER);
+      //   // intake.setIntakeState(IntakeState.STOP);
 
-      }
+      // }
       SmartDashboard.putString("Button 1 Pressed", "Button 1 Pressed");
     }else {
           SmartDashboard.putString("Button 1 Pressed", "No 1");
@@ -339,33 +341,69 @@ public class Robot extends LoggedRobot {
 
     }else{
     SmartDashboard.putString("Button 4 Pressed", "No 4");
-      launcher.setLauncherOff();
-      launcher.setFlickOff();
-
     }
     if(mts.getRawButton(5))
     {
-      // foldOutCommand.schedule();
-      // intake.setIntakeState(IntakeState.GROUND);
-      // launcher.setLauncherState(LauncherState.TEST);
-      // launcher.eject();
-      // launcher.setFlickerPartial();
-      SmartDashboard.putString("Button 5 Pressed", "Button 5 Pressed");
-
-    }else{
-      SmartDashboard.putString("Button 5 Pressed", "No 5");
-
+      intake.setIntakeState(IntakeState.STOP);
+      intake.setRollerOff();
+      launcher.setLauncherState(LauncherState.HOVER);
+      launcher.setAmpPose(AmpMotorPos.DOWN);
+      launcher.updatePose();
+      launcher.moveAmp();
+      launcher.setLauncherOff();
+      launcher.setFlickOff();   
     }
+  //   else
+  //   {
+  //     SmartDashboard.putString("Button 6 Pressed", "No 6 Pressed");
+  //   }
+  //   if(mts.getRawButton(11))
+  //   {
+  //     SmartDashboard.putString("Button 11 Pressed", "Button 11 Pressed");
+  //   }
+  //   else
+  //   {
+  //     SmartDashboard.putString("Button 11 Pressed", "No 11 Pressed");
+  //   }
+
+  //   if(mts.getRawButton(12)){
+  //     SmartDashboard.putString("Button 12 Pressed", "Button 12 Pressed");
+
+  //   }else{
+  //     SmartDashboard.putString("Button 12 Pressed", "No 12 Pressed");
+
+  //   }
+
+  //    if(mts.getRawButton(5)){
+  //     SmartDashboard.putString("Button 5 Pressed", "Button 5 Pressed");
+
+  //   }else{
+  //     SmartDashboard.putString("Button 5 Pressed", "No 5 Pressed");
+
+  //   }
   double ySpeed = drivebase.inputDeadband(-joystick.getX()*.25);
-    // -driver.getLeftX()
+  // -driver.getLeftX()
   double xSpeed = drivebase.inputDeadband(joystick.getY()*.25);
   // driver.getLeftY()
-  double rot = drivebase.inputDeadband(joystick.getZ()*.25);
+
+  double rot = drivebase.inputDeadband(joystick.getRawAxis(3)*.25);
+  //  rot = drivebase.inputDeadband(joystick.getZ()*.25);
+
+   if(joystick.getZ() > 0.0){
+    rot = drivebase.inputDeadband(joystick.getZ()*.25);
+   }else{
+    rot = drivebase.inputDeadband(-joystick.getRawAxis(3)*.25);
+   }
+
+
+  // if(joystick.getZ()>0.0)
+  // {
+  //   SmartDashboard.putString("rot", "rot");
+  // }
+  // else
+  // SmartDashboard.putString("rot", "no rot");
 
   
-
-    
-
     if (driver.getPOV() == 0) {
       drivebase.zeroHeading();
     }
@@ -397,6 +435,8 @@ public class Robot extends LoggedRobot {
           xSpeed = (2.0 - targetRange) * .01 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
         }
     }
+
+   
     drivebase.drive(xSpeed, ySpeed, rot);
     /* OPERATOR CONTROLS */
     /*Operator controller map
@@ -503,8 +543,9 @@ public class Robot extends LoggedRobot {
       ampCommand.cancel();
       handoffCommand.cancel();
     }
-    
   }
+    
+
 
   @Override
   public void disabledInit() {

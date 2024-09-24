@@ -24,7 +24,7 @@ public class Launcher {
         //was 9 before (HANDOFF)
         HANDOFF(8.5, 0.5),
         //was -3 before (HOVER)
-        HOVER(-4, 1.0),
+        HOVER(-6, 1.0),
         TOSS(-22, .80),
         AUTOMIDSHOT(-12, 1.0),
         // height: ?
