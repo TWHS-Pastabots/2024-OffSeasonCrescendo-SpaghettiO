@@ -202,15 +202,16 @@ public class CameraSystem{
     }
     // returns a Double Object, so need check if it is null
     public Double getYawForTag(int position){
-            if(getResult(position).hasTargets() && (getResult(position).getBestTarget().getFiducialId() == 4 
-            || getResult(position).getBestTarget().getFiducialId() == 5
-            || getResult(position).getBestTarget().getFiducialId() == 3))
+            if(getResult(position).hasTargets())
             {
-                PhotonTrackedTarget target = getResult(position).getBestTarget();
-                if(target != null){
-                    return target.getYaw();
+                List<PhotonTrackedTarget> targets = getResult(position).getTargets();
+                for(var target : targets)
+                {
+                    if(target != null && target.getFiducialId() == 4)
+                    {
+                        return target.getYaw();
+                    }
                 }
-                
             } 
             // else if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 3){
             //     List<PhotonTrackedTarget> targets = getResult(position).getTargets();
@@ -235,23 +236,18 @@ public class CameraSystem{
         //             }
         //         }
         // }
-        if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 4){
-            targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(),
-             aprilTagFieldLayout.getTagPose(4).get().getZ(), 
-             0, 
-             Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
-        }
-        else if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 3){
+        
             List<PhotonTrackedTarget> targets = getResult(position).getTargets();
-                for(PhotonTrackedTarget target : targets){
-                    if(target.getFiducialId() == 4){
-                        targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 
-                        aprilTagFieldLayout.getTagPose(4).get().getZ(), 
-                        0, 
-                        Units.degreesToRadians(target.getPitch()));
-                    }
-                }
-        }
+            for(PhotonTrackedTarget target : targets)
+            {
+               if(target.getFiducialId() == 4)
+               {
+                    targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 
+                    aprilTagFieldLayout.getTagPose(4).get().getZ(), 
+                    offsets.get(position).getRotation().getY(), 
+                    Units.degreesToRadians(target.getPitch()));
+                } 
+            }
 
         return targetRange;
     }

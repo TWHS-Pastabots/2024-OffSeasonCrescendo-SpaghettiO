@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -422,21 +423,24 @@ public class Robot extends LoggedRobot {
     if(driver.getLeftTriggerAxis() > 0)
     {
       Double yaw = camSystem.getYawForTag(0);
-      targetRange = camSystem.getTargetRange(0);
-        if(yaw !=null)
-        {
-          rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
-        }
-        if(targetRange != null && xSpeed == 0){
-          xSpeed = (2.0 - targetRange) * .002 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
-        }
+      if(camSystem.getTargetRange(0) != null || targetRange == null)
+      {
+        targetRange = camSystem.getTargetRange(0);
+      }
+      if(yaw !=null)
+      {
+        rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
+      }
+      if(targetRange != null){
+        xSpeed = (targetRange - 2.0) * .15 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
+      }
     }
     if(targetRange != null)
     {
       SmartDashboard.putNumber("Target Range", targetRange);
     }
-    if(camSystem.getResult(0).hasTargets()){
-      SmartDashboard.putNumber("TargetPitch", camSystem.getResult(0).getBestTarget().getPitch());
+    if(camSystem.getResult(0).hasTargets() && camSystem.getResult(0).getBestTarget() != null){
+      SmartDashboard.putNumber("TargetPitch", Units.degreesToRadians(camSystem.getResult(0).getBestTarget().getPitch()));
     }
       
 
