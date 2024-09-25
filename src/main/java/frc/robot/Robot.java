@@ -67,6 +67,8 @@ public class Robot extends LoggedRobot {
   
   private AmpCommand ampCommand;
 
+  Double targetRange = null;
+
   
 
   //that is a chooser for the autons utilizing the sendableChooser which allows us to choose the auton commands
@@ -157,12 +159,6 @@ public class Robot extends LoggedRobot {
         Pose2d cameraPositionTele = camSystem.calculateRobotPosition();
 
        Pose2d posTele = drivebase.updateOdometry(cameraPositionTele);
-
-       if(camSystem.getTargetRange(0) != null){
-          SmartDashboard.putNumber("Target Range Smart", camSystem.getTargetRange(0));
-
-
-       }
 
 
         SmartDashboard.putNumber("Odometry X", posTele.getX());
@@ -275,9 +271,9 @@ public class Robot extends LoggedRobot {
       launcher.moveAmp();
     }
     //setting inputs for driving through the driver controller
-    // double ySpeed = drivebase.inputDeadband(-driver.getLeftX());
-    // double xSpeed = drivebase.inputDeadband(driver.getLeftY());
-    // double rot = drivebase.inputDeadband(-driver.getRightX());
+    double ySpeed = drivebase.inputDeadband(-driver.getLeftX());
+    double xSpeed = drivebase.inputDeadband(driver.getLeftY());
+    double rot = drivebase.inputDeadband(-driver.getRightX());
     //using buttons to rotate the robot by increments of 90 degrees
     // if (driver.getAButton()) {
     //   drivebase.currHeading = -1;
@@ -381,19 +377,19 @@ public class Robot extends LoggedRobot {
   //     SmartDashboard.putString("Button 5 Pressed", "No 5 Pressed");
 
   //   }
-  double ySpeed = drivebase.inputDeadband(-joystick.getX()*.25);
-  // -driver.getLeftX()
-  double xSpeed = drivebase.inputDeadband(joystick.getY()*.25);
-  // driver.getLeftY()
+  // double ySpeed = drivebase.inputDeadband(-joystick.getX()*.25);
+  // // -driver.getLeftX()
+  // double xSpeed = drivebase.inputDeadband(joystick.getY()*.25);
+  // // driver.getLeftY()
 
-  double rot = drivebase.inputDeadband(joystick.getRawAxis(3)*.25);
-  //  rot = drivebase.inputDeadband(joystick.getZ()*.25);
+  // double rot = drivebase.inputDeadband(joystick.getRawAxis(3)*.25);
+  // //  rot = drivebase.inputDeadband(joystick.getZ()*.25);
 
-   if(joystick.getZ() > 0.0){
-    rot = drivebase.inputDeadband(joystick.getZ()*.25);
-   }else{
-    rot = drivebase.inputDeadband(-joystick.getRawAxis(3)*.25);
-   }
+  //  if(joystick.getZ() > 0.0){
+  //   rot = drivebase.inputDeadband(joystick.getZ()*.25);
+  //  }else{
+  //   rot = drivebase.inputDeadband(-joystick.getRawAxis(3)*.25);
+  //  }
 
 
   // if(joystick.getZ()>0.0)
@@ -426,15 +422,23 @@ public class Robot extends LoggedRobot {
     if(driver.getLeftTriggerAxis() > 0)
     {
       Double yaw = camSystem.getYawForTag(0);
-      Double targetRange = camSystem.getTargetRange(0);
+      targetRange = camSystem.getTargetRange(0);
         if(yaw !=null)
         {
           rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
         }
         if(targetRange != null && xSpeed == 0){
-          xSpeed = (2.0 - targetRange) * .01 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
+          xSpeed = (2.0 - targetRange) * .002 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
         }
     }
+    if(targetRange != null)
+    {
+      SmartDashboard.putNumber("Target Range", targetRange);
+    }
+    if(camSystem.getResult(0).hasTargets()){
+      SmartDashboard.putNumber("TargetPitch", camSystem.getResult(0).getBestTarget().getPitch());
+    }
+      
 
    
     drivebase.drive(xSpeed, ySpeed, rot);

@@ -132,18 +132,12 @@ public class CameraSystem{
             
                 
             // gets the position of the april tag scanned
-            Pose3d fiducialPose = fiducialMap.get(target.getFiducialId());
+            //Pose3d fiducialPose = fiducialMap.get(target.getFiducialId());
 
             if(pnpResult.estimatedPose.isPresent)
             {
                 Transform3d fieldToCamera = pnpResult.estimatedPose.best;
-            }
-
-            if (fiducialPose != null) {
-                // calcuates the april tag position to the camera
-                Transform3d transform = target.getBestCameraToTarget().inverse();
-                Pose3d cameraToTargetPose = fiducialPose.transformBy(transform);
-                // finds the pose of the robot from the camera position
+                Pose3d cameraToTargetPose = new Pose3d().transformBy(fieldToCamera);
                 Pose3d robotPose3d = cameraToTargetPose.transformBy(cameraOffset);
                 return new Pose3d(
                     robotPose3d.getX(),
@@ -151,7 +145,22 @@ public class CameraSystem{
                     robotPose3d.getZ(),
                     robotPose3d.getRotation()
                 );
+
             }
+
+            // if (fiducialPose != null) {
+            //     // calcuates the april tag position to the camera
+            //     Transform3d transform = target.getBestCameraToTarget().inverse();
+            //     Pose3d cameraToTargetPose = fiducialPose.transformBy(transform);
+            //     // finds the pose of the robot from the camera position
+            //     Pose3d robotPose3d = cameraToTargetPose.transformBy(cameraOffset);
+            //     return new Pose3d(
+            //         robotPose3d.getX(),
+            //         robotPose3d.getY(),
+            //         robotPose3d.getZ(),
+            //         robotPose3d.getRotation()
+            //     );
+            // }
         }
         return null;
     }
@@ -194,36 +203,56 @@ public class CameraSystem{
     // returns a Double Object, so need check if it is null
     public Double getYawForTag(int position){
             if(getResult(position).hasTargets() && (getResult(position).getBestTarget().getFiducialId() == 4 
-            || getResult(position).getBestTarget().getFiducialId() == 5))
+            || getResult(position).getBestTarget().getFiducialId() == 5
+            || getResult(position).getBestTarget().getFiducialId() == 3))
             {
                 PhotonTrackedTarget target = getResult(position).getBestTarget();
                 if(target != null){
                     return target.getYaw();
                 }
                 
-            } else if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 3 ){
-                List<PhotonTrackedTarget> targets = getResult(position).getTargets();
-                for(PhotonTrackedTarget target : targets){
-                    if(target.getFiducialId() == 4){
-                        return target.getYaw();
-                    }
-                }
-            }
+            } 
+            // else if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 3){
+            //     List<PhotonTrackedTarget> targets = getResult(position).getTargets();
+            //     for(PhotonTrackedTarget target : targets){
+            //         if(target.getFiducialId() == 4){
+            //             return target.getYaw();
+            //         }
+            //     }
+            // }
             return null;
     } 
     public Double getTargetRange(int position){
         Double targetRange = null;
+        // if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 4){
+        //     targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 57.13 * 0.0254, -offsets.get(position).getRotation().getY(), Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
+        // }
+        // else if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 3){
+        //     List<PhotonTrackedTarget> targets = getResult(position).getTargets();
+        //         for(PhotonTrackedTarget target : targets){
+        //             if(target.getFiducialId() == 4){
+        //                 targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 57.13 * 0.0254, -offsets.get(position).getRotation().getY(), Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
+        //             }
+        //         }
+        // }
         if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 4){
-            targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 57.13 * 0.0254, -offsets.get(position).getRotation().getY(), Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
+            targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(),
+             aprilTagFieldLayout.getTagPose(4).get().getZ(), 
+             0, 
+             Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
         }
         else if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 3){
             List<PhotonTrackedTarget> targets = getResult(position).getTargets();
                 for(PhotonTrackedTarget target : targets){
                     if(target.getFiducialId() == 4){
-                        targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 57.13 * 0.0254, -offsets.get(position).getRotation().getY(), Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
+                        targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 
+                        aprilTagFieldLayout.getTagPose(4).get().getZ(), 
+                        0, 
+                        Units.degreesToRadians(target.getPitch()));
                     }
                 }
         }
+
         return targetRange;
     }
     // Field coordinates for the april tags (converting inches to meters)
