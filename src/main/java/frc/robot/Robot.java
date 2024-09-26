@@ -87,6 +87,10 @@ public class Robot extends LoggedRobot {
     camSystem.AddCamera(new PhotonCamera("BackCam"), new Transform3d(
         new Translation3d(-.31, .01, -0.375), new Rotation3d(0.0, Math.toRadians(30), Math.PI))
         ,  true);
+
+    camSystem.AddCamera(new PhotonCamera("FrontCam"),  new Transform3d(
+      new Translation3d(.325, -.275, -0.24), new Rotation3d(0.0, Math.toRadians(30), 0.0)),
+       true);
     // camSystem.AddCamera(new PhotonCamera("FrontCam"),new Transform3d(
     //     new Translation3d(.325, -.275, 0.24), new Rotation3d(0.0, Math.toRadians(30), Math.toRadians(0.0))) 
     //     );
@@ -422,25 +426,26 @@ public class Robot extends LoggedRobot {
     //getting yaw from the tag to rotate towards it. The robot will allign itself with the 
     if(driver.getLeftTriggerAxis() > 0)
     {
-      Double yaw = camSystem.getYawForTag(0);
-      if(camSystem.getTargetRange(0) != null || targetRange == null)
-      {
-        targetRange = camSystem.getTargetRange(0);
-      }
+      Double yaw = camSystem.getYawForTag(1);
+      // if(camSystem.getTargetRange(0) != null || targetRange == null)
+      // {
+      //   targetRange = camSystem.getTargetRange(0);
+      // }
+      targetRange = camSystem.getTargetRange(1);
       if(yaw !=null)
       {
         rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
       }
       if(targetRange != null){
-        xSpeed = (targetRange - 2.0) * .15 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
+        xSpeed = (targetRange - 2.0) * .2 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
       }
     }
     if(targetRange != null)
     {
       SmartDashboard.putNumber("Target Range", targetRange);
     }
-    if(camSystem.getResult(0).hasTargets() && camSystem.getResult(0).getBestTarget() != null){
-      SmartDashboard.putNumber("TargetPitch", Units.degreesToRadians(camSystem.getResult(0).getBestTarget().getPitch()));
+    if(camSystem.getResult(1).hasTargets() && camSystem.getResult(1).getBestTarget() != null){
+      SmartDashboard.putNumber("TargetPitch", Units.degreesToRadians(camSystem.getResult(1).getBestTarget().getPitch()));
     }
       
 

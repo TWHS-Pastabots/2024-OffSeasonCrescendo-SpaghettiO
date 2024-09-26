@@ -38,7 +38,7 @@ public class DualCamera {
 
     // Define camera offsets in 3D
     private static final Transform3d FRONT_CAMERA_OFFSET = new Transform3d(
-        new Translation3d(.325, -.275, 0.24), new Rotation3d(0.0, Math.toRadians(30), Math.toRadians(0.0))
+        new Translation3d(.325, -.275, -0.24), new Rotation3d(0.0, Math.toRadians(30), Math.toRadians(0.0))
     );
     private static final Transform3d BACK_CAMERA_OFFSET = new Transform3d(
         new Translation3d(-.31, .01, -0.375), new Rotation3d(0.0, Math.toRadians(30), Math.PI)
