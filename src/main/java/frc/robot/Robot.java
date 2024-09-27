@@ -437,7 +437,7 @@ public class Robot extends LoggedRobot {
         rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
       }
       if(targetRange != null){
-        xSpeed = (targetRange - 2.0) * .2 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
+        xSpeed = (targetRange - 2.5) * .1 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
       }
     }
     if(targetRange != null)
