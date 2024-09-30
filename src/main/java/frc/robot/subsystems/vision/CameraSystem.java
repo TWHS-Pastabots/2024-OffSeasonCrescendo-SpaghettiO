@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -201,13 +202,13 @@ public class CameraSystem{
         return -1;
     }
     // returns a Double Object, so need check if it is null
-    public Double getYawForTag(int position){
+    public Double getYawForTag(int position, int ID){
             if(getResult(position).hasTargets())
             {
                 List<PhotonTrackedTarget> targets = getResult(position).getTargets();
                 for(var target : targets)
                 {
-                    if(target != null && target.getFiducialId() == 4)
+                    if(target != null && target.getFiducialId() == ID)
                     {
                         return target.getYaw();
                     }
@@ -223,7 +224,7 @@ public class CameraSystem{
             // }
             return null;
     } 
-    public Double getTargetRange(int position){
+    public Double getTargetRange(int position, int ID){
         Double targetRange = null;
         // if(getResult(position).hasTargets() && getResult(position).getBestTarget().getFiducialId() == 4){
         //     targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 57.13 * 0.0254, -offsets.get(position).getRotation().getY(), Units.degreesToRadians(getResult(position).getBestTarget().getPitch()));
@@ -240,16 +241,34 @@ public class CameraSystem{
             List<PhotonTrackedTarget> targets = getResult(position).getTargets();
             for(PhotonTrackedTarget target : targets)
             {
-               if(target.getFiducialId() == 4)
+               if(target.getFiducialId() == ID)
                {
                     targetRange = PhotonUtils.calculateDistanceToTargetMeters(-offsets.get(position).getZ(), 
-                    aprilTagFieldLayout.getTagPose(4).get().getZ(), 
+                    aprilTagFieldLayout.getTagPose(ID).get().getZ(), 
                     offsets.get(position).getRotation().getY(), 
                     Units.degreesToRadians(target.getPitch()));
                 } 
             }
 
         return targetRange;
+    }
+    public Double getTargetAngle(int position, int ID)
+    {
+        Double targetAngle = null;
+        List<PhotonTrackedTarget> targets = getResult(position).getTargets();
+        Double base = null;
+        Double height = null;
+        for(PhotonTrackedTarget target : targets)
+        {
+            if(target.getFiducialId() == ID)
+            {
+                base = getTargetRange(position, ID);
+                height = aprilTagFieldLayout.getTagPose(ID).get().getZ() + .42 - Constants.LauncherConstants.launcherPivotHeight;
+                Double angleInRadians = Math.atan(height/base);
+
+            }
+        }
+        return targetAngle;
     }
     // Field coordinates for the april tags (converting inches to meters)
     private void initializeFiducialMap(double inchesToMeters) {

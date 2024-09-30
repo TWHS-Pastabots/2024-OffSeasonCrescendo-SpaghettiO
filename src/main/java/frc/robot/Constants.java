@@ -151,6 +151,9 @@ public final class Constants {
     public static final double lebronPCoefficient = 0.08;
     public static final double lebronICoefficient = 0.0;
     public static final double lebronDCoefficient = 0.0;
+
+    // Launcher Pivot Height in meters
+    public static final double launcherPivotHeight = .43;
   }
 
 

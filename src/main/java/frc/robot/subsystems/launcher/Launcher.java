@@ -126,7 +126,7 @@ public class Launcher {
         pivotMotor.restoreFactoryDefaults();
 
         pivotMotor.setSmartCurrentLimit(60);
-        pivotMotor.setIdleMode(IdleMode.kBrake);
+        pivotMotor.setIdleMode(IdleMode.kCoast);
         pivotMotor.setInverted(true);
         
         pivotMotor.setOpenLoopRampRate(1);

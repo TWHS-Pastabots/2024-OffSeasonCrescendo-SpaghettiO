@@ -426,12 +426,12 @@ public class Robot extends LoggedRobot {
     //getting yaw from the tag to rotate towards it. The robot will allign itself with the 
     if(driver.getLeftTriggerAxis() > 0)
     {
-      Double yaw = camSystem.getYawForTag(1);
+      Double yaw = camSystem.getYawForTag(1, 4);
       // if(camSystem.getTargetRange(0) != null || targetRange == null)
       // {
       //   targetRange = camSystem.getTargetRange(0);
       // }
-      targetRange = camSystem.getTargetRange(1);
+      targetRange = camSystem.getTargetRange(1, 4);
       if(yaw !=null)
       {
         rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
