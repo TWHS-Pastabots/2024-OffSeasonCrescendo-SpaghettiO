@@ -34,11 +34,12 @@ public class Launcher {
         // height: ?7
         //angle from the negative vertical (3pi/2 to pi type beat): 149.85
         SPEAKER(-54, 1.0),
-        
+        AUTO(0, 1.0),
         ALTSPEAKER(-23, 1.0),
         INTERLOPE(0.0, 1.0),
         TEST(-13.25, 1.0),
         FIXER(-20, 0);
+        
 
         public double position;
         public double launchSpeed;
@@ -230,7 +231,10 @@ public class Launcher {
         return ampMotor.getOutputCurrent();
 
     }
-
+    public void setLauncherPosition(double position)
+    {
+        launchState.position = position;
+    }
     
 
     

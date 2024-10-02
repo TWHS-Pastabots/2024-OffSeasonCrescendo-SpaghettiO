@@ -69,6 +69,7 @@ public class Robot extends LoggedRobot {
   private AmpCommand ampCommand;
 
   Double targetRange = null;
+  Double targetAngle = null;
 
   
 
@@ -427,22 +428,35 @@ public class Robot extends LoggedRobot {
     if(driver.getLeftTriggerAxis() > 0)
     {
       Double yaw = camSystem.getYawForTag(1, 4);
-      // if(camSystem.getTargetRange(0) != null || targetRange == null)
-      // {
-      //   targetRange = camSystem.getTargetRange(0);
-      // }
       targetRange = camSystem.getTargetRange(1, 4);
+      targetAngle = camSystem.getTargetAngle(1, 4);
       if(yaw !=null)
       {
         rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
       }
-      if(targetRange != null){
-        xSpeed = (targetRange - 2.5) * .1 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
+      // if(targetRange != null){
+      //   xSpeed = (targetRange - 2.5) * .1 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
+      // }
+      
+      
+    }
+    if (operator.getPOV() == 270) 
+    {
+      targetAngle = camSystem.getTargetAngle(1, 4);
+      if(targetAngle != null)
+      {
+        launcher.setLauncherState(LauncherState.AUTO);
+        launcher.setLauncherPosition(targetAngle);
+        launcher.updatePose();
       }
     }
     if(targetRange != null)
     {
-      SmartDashboard.putNumber("Target Range", targetRange);
+      SmartDashboard.putNumber("TargetRange", targetRange);
+    }
+    if(targetAngle != null)
+    {
+      SmartDashboard.putNumber("Target Angle", targetAngle);
     }
     if(camSystem.getResult(1).hasTargets() && camSystem.getResult(1).getBestTarget() != null){
       SmartDashboard.putNumber("TargetPitch", Units.degreesToRadians(camSystem.getResult(1).getBestTarget().getPitch()));
@@ -472,7 +486,8 @@ public class Robot extends LoggedRobot {
      * Left back button - cancels every command on the robot
      * right back button - sets the robot up to amp
      */
-    if (operator.getRightBumper()) {
+    if (operator.getRightBumper() && launcher.getLaunchState() == LauncherState.AUTO) {
+      launcher.setLauncherState(LauncherState.HANDOFF);
       handoffCommand.schedule();
     }
 
@@ -520,9 +535,9 @@ public class Robot extends LoggedRobot {
     if (operator.getPOV() == 180) {
       launcher.setLauncherState(LauncherState.TOSS);
     }
-    if (operator.getPOV() == 270) {
-      launcher.setLauncherState(LauncherState.LONG);
-    }
+    // if (operator.getPOV() == 270) {
+    //   launcher.setLauncherState(LauncherState.LONG);
+    // }
      if (operator.getAButton()) {
       foldOutCommand.schedule();
       intake.setIntakeState(IntakeState.GROUND);
