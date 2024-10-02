@@ -33,7 +33,7 @@ public class Launcher {
         AUTORIGHTSHOT(-13.5, 1.0),
         // height: ?7
         //angle from the negative vertical (3pi/2 to pi type beat): 149.85
-        SPEAKER(-54, 1.0),
+        SPEAKER(-56, 1.0),
         AUTO(0, 1.0),
         ALTSPEAKER(-23, 1.0),
         INTERLOPE(0.0, 1.0),
@@ -127,7 +127,7 @@ public class Launcher {
         pivotMotor.restoreFactoryDefaults();
 
         pivotMotor.setSmartCurrentLimit(60);
-        pivotMotor.setIdleMode(IdleMode.kCoast);
+        pivotMotor.setIdleMode(IdleMode.kBrake);
         pivotMotor.setInverted(true);
         
         pivotMotor.setOpenLoopRampRate(1);

@@ -34,6 +34,7 @@ import frc.robot.commands.Celebrate;
 import frc.robot.commands.FoldOutCommand;
 import frc.robot.commands.RevLauncher;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.SmartShoot;
 import frc.robot.subsystems.IO.LED;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.intake.Intake;
@@ -119,6 +120,7 @@ public class Robot extends LoggedRobot {
     NamedCommands.registerCommand("RevLauncher", new RevLauncher());
     NamedCommands.registerCommand("AutoPreload", new AutoPreload());
     NamedCommands.registerCommand("AltRevLauncher", new AltRevLauncher());
+    NamedCommands.registerCommand("SmartShoot", new SmartShoot());
 
     //adding actual pathings to the chooser so we can select what to run during the match
 
@@ -486,7 +488,7 @@ public class Robot extends LoggedRobot {
      * Left back button - cancels every command on the robot
      * right back button - sets the robot up to amp
      */
-    if (operator.getRightBumper() && launcher.getLaunchState() == LauncherState.AUTO) {
+    if (operator.getRightBumper()) {
       launcher.setLauncherState(LauncherState.HANDOFF);
       handoffCommand.schedule();
     }

@@ -32,7 +32,7 @@ public class AutoSpeaker extends Command {
 
   @Override
   public void execute() {
-    launcher.updatePose();
+    // launcher.updatePose();
 
     if(launcher.hasReachedPose(1.2)){
     launcher.setLauncherOn();
@@ -53,8 +53,8 @@ public class AutoSpeaker extends Command {
   public void end(boolean interrupted) {
     launcher.setFlickOff();
     launcher.setLauncherOff();
-    launcher.setLauncherState(LauncherState.HOVER);
-    launcher.updatePose();  
+    
+    // launcher.updatePose();  
   }
 
   @Override
