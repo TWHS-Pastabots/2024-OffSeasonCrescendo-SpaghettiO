@@ -15,6 +15,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -152,12 +153,15 @@ public class Drivebase extends SubsystemBase {
   }
 
   public Pose2d updateOdometry(Pose2d pose){
-      Pose2d position = poseEstimator.update(gyro.getRotation2d(), getPositions());
+      Pose2d position = poseEstimator.updateWithTime(Timer.getFPGATimestamp(), gyro.getRotation2d(), getPositions());
       CameraSystem system = CameraSystem.getInstance();
       Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
-      if(pose != null && pose != defaultPose && system.hasTargets() && system.getTimeStamp() != -1)
+      Transform2d trans = position.minus(pose);
+      
+      if(pose != null && pose != defaultPose && system.hasTargets() && system.getTimeStamp() != -1
+      && Math.abs(trans.getX()) < 1 && Math.abs(trans.getY()) < 1)
       {
-      poseEstimator.addVisionMeasurement(pose, system.getTimeStamp());
+        poseEstimator.addVisionMeasurement(pose, system.getTimeStamp());
       }
       return position;
   }

@@ -188,7 +188,7 @@ public class CameraSystem{
     {
         int cameraCount = 0;
         for (PhotonCamera cam : cameras){
-            if(cam.getLatestResult().hasTargets()){
+            if(cam.getLatestResult().hasTargets() && CameraHasAprilTagDetection(cameraCount)){
                 Pose3d orig = calculatePoseFromCameraResult(cam.getLatestResult(), offsets.get(cameraCount));
                 if(orig != null){
                     Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
@@ -203,7 +203,7 @@ public class CameraSystem{
     }
     // returns a Double Object, so need check if it is null
     public Double getYawForTag(int position, int ID){
-            if(getResult(position).hasTargets())
+            if(getResult(position).hasTargets() && CameraHasAprilTagDetection(position))
             {
                 List<PhotonTrackedTarget> targets = getResult(position).getTargets();
                 for(var target : targets)
@@ -278,6 +278,16 @@ public class CameraSystem{
             }
         }
         return targetAngle;
+    }
+    // Gets the Yaw for the scanned object; should turn towards the object
+    public Double getYawforObject(int position)
+    {
+        if(CameraHasAprilTagDetection(position) && getResult(position).hasTargets())
+        {
+            var target = getResult(position).getBestTarget();
+            return target.getYaw();
+        }
+        return null;
     }
     // Field coordinates for the april tags (converting inches to meters)
     private void initializeFiducialMap(double inchesToMeters) {

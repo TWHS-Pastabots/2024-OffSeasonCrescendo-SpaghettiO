@@ -87,12 +87,13 @@ public class Robot extends LoggedRobot {
     camSystem = CameraSystem.getInstance();
     // BackCam is at array position 0, FrontCam is at array positon 1
     camSystem.AddCamera(new PhotonCamera("BackCam"), new Transform3d(
-        new Translation3d(-.31, .01, -0.375), new Rotation3d(0.0, Math.toRadians(30), Math.PI))
-        ,  true);
-
+        new Translation3d(-.31, .01, -0.375), new Rotation3d(0.0, Math.toRadians(30), Math.PI)),  
+        true);
     camSystem.AddCamera(new PhotonCamera("FrontCam"),  new Transform3d(
       new Translation3d(.325, -.275, -0.24), new Rotation3d(0.0, Math.toRadians(30), 0.0)),
        true);
+    camSystem.AddCamera(new PhotonCamera("IntakeCam"), new Transform3d(
+      new Translation3d(.44, 0, -0.18), new Rotation3d(0, 0, 0)), false);
     // camSystem.AddCamera(new PhotonCamera("FrontCam"),new Transform3d(
     //     new Translation3d(.325, -.275, 0.24), new Rotation3d(0.0, Math.toRadians(30), Math.toRadians(0.0))) 
     //     );
@@ -251,6 +252,8 @@ public class Robot extends LoggedRobot {
 
     SmartDashboard.putNumber("Auto X", drivebase.getPose().getX());
     SmartDashboard.putNumber("Auto Y", drivebase.getPose().getY());
+    SmartDashboard.putNumber("CamPose X", cameraPosition.getX());
+    SmartDashboard.putNumber("CamPose Y ", cameraPosition.getY());
     SmartDashboard.putNumber("Odometry X", pose.getX());
     SmartDashboard.putNumber("Odometry Y", pose.getY());
   }
@@ -429,7 +432,8 @@ public class Robot extends LoggedRobot {
     //getting yaw from the tag to rotate towards it. The robot will allign itself with the 
     if(driver.getLeftTriggerAxis() > 0)
     {
-      Double yaw = camSystem.getYawForTag(1, 4);
+      //Double yaw = camSystem.getYawForTag(1, 4);
+      Double yaw = camSystem.getYawforObject(2);
       targetRange = camSystem.getTargetRange(1, 4);
       targetAngle = camSystem.getTargetAngle(1, 4);
       if(yaw !=null)
