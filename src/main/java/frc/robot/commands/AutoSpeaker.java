@@ -32,7 +32,7 @@ public class AutoSpeaker extends Command {
 
   @Override
   public void execute() {
-    // launcher.updatePose();
+    launcher.updatePose();
 
     if(launcher.hasReachedPose(1.2)){
     launcher.setLauncherOn();

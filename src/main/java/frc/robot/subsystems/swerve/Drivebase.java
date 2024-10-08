@@ -11,6 +11,9 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.*;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,7 +24,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
@@ -76,6 +81,10 @@ public class Drivebase extends SubsystemBase {
 
   public double currHeading;
 
+  private static final Vector<N3> STATE_STDS = VecBuilder.fill(.05, .05, Units.degreesToRadians(5));
+
+  private static final Vector<N3> VISION_STDS = VecBuilder.fill(.1, .1, Units.degreesToRadians(510));
+
   public Drivebase() {
 
     // Swerve modules
@@ -90,6 +99,8 @@ public class Drivebase extends SubsystemBase {
         DriveConstants.kBackRightChassisAngularOffset, true);
 
     
+
+    
       
     //GYRO SET TO 90 DEGREE ADJUSTMENT
 
@@ -100,9 +111,12 @@ public class Drivebase extends SubsystemBase {
 
     
     //THIS FACTOR IN GYRO ANGLE AND RETURNS ESTIMATION
-    poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
+    // poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
+    //     Rotation2d.fromDegrees(-gyro.getAngle()),
+    //     getPositions(), new Pose2d());
+      poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
         Rotation2d.fromDegrees(-gyro.getAngle()),
-        getPositions(), new Pose2d());
+        getPositions(), new Pose2d(), STATE_STDS, VISION_STDS);
 
     
     //TRAPAZOID MOTION PROFILE define the maximum velocity and acceleration (MAKE SURE TO TWEAK BEFORE EVERY SWERVE) 
@@ -153,13 +167,13 @@ public class Drivebase extends SubsystemBase {
   }
 
   public Pose2d updateOdometry(Pose2d pose){
-      Pose2d position = poseEstimator.updateWithTime(Timer.getFPGATimestamp(), gyro.getRotation2d(), getPositions());
       CameraSystem system = CameraSystem.getInstance();
+      Pose2d position = poseEstimator.update(gyro.getRotation2d(), getPositions());
       Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
-      Transform2d trans = position.minus(pose);
-      
-      if(pose != null && pose != defaultPose && system.hasTargets() && system.getTimeStamp() != -1
-      && Math.abs(trans.getX()) < 1 && Math.abs(trans.getY()) < 1)
+      // Transform2d trans = position.minus(pose);
+      // (Math.abs(trans.getX()) > 1 || Math.abs(trans.getY()) > 1 || 
+      // (Math.abs(trans.getX()) > (1/Math.sqrt(2)) && Math.abs(trans.getY()) > (1/Math.sqrt(2))))
+      if(pose != null && pose != defaultPose && system.hasTargets() && system.getTimeStamp() != -1)
       {
         poseEstimator.addVisionMeasurement(pose, system.getTimeStamp());
       }

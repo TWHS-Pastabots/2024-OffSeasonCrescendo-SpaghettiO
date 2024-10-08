@@ -63,7 +63,11 @@ public class CameraSystem{
     public void AddCamera(PhotonCamera camera, Transform3d offset, boolean hasAprilTagDetection){
         cameras.add(camera);
         offsets.add(offset);
-        estimators.add(new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, offset));
+        
+        PhotonPoseEstimator estimator = new PhotonPoseEstimator(
+            aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, offset);
+        estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        estimators.add(estimator);
         this.hasAprilTagDetection.add(hasAprilTagDetection);
     }
     // calculates robot position
@@ -122,8 +126,8 @@ public class CameraSystem{
     }
     // runs the orginal pose and puts it through it corresponding estimator
     private Optional<EstimatedRobotPose> usePoseEstimator(int position, Pose2d prevPose){
-        estimators.get(position).setReferencePose(prevPose);
-        return estimators.get(position).update();
+        // estimators.get(position).setReferencePose(prevPose);
+        return estimators.get(position).update(getResult(position));
     }
     // calculates the postition of tag to robot from one camera's results 
     private Pose3d calculatePoseFromCameraResult(PhotonPipelineResult result, Transform3d cameraOffset) {
