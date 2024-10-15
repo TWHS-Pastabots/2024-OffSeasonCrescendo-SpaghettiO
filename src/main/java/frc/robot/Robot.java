@@ -80,6 +80,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
     drivebase = Drivebase.getInstance();
+
+    drivebase.resetOdometry(new Pose2d(15.22, 5.56, new Rotation2d()));
+
     launcher = Launcher.getInstance();
     intake = Intake.getInstance();
     climber = Climber.getInstance();
@@ -109,7 +112,7 @@ public class Robot extends LoggedRobot {
     autoSpeaker = new AutoSpeaker();
     ampCommand = new AmpCommand();
     foldOutCommand = new FoldOutCommand();
-   
+    
     
     //all the commands to use in our autos. Not the paths to follow, but the shooting.
     NamedCommands.registerCommand("AutoSpeaker", autoSpeaker);
@@ -167,11 +170,17 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
         Pose2d cameraPositionTele = camSystem.calculateRobotPosition();
 
-       Pose2d posTele = drivebase.updateOdometry(cameraPositionTele);
+       //Pose2d posTele = drivebase.updateOdometry(cameraPositionTele);
+
+       SmartDashboard.putNumber("X-coordinate", drivebase.getPose().getX());
+       SmartDashboard.putNumber("Y-coordinate", drivebase.getPose().getY());
 
 
-        SmartDashboard.putNumber("Odometry X", posTele.getX());
-        SmartDashboard.putNumber("Odometry Y", posTele.getY());
+        // SmartDashboard.putNumber("Odometry X", posTele.getX());
+        // SmartDashboard.putNumber("Odometry Y", posTele.getY());
+
+        SmartDashboard.putNumber("CamPoseTele X", cameraPositionTele.getX());
+        SmartDashboard.putNumber("CamPoseTele Y ", cameraPositionTele.getY());
 
       //this is getting the data from the cameras through the cameraSystem class 
      if (camSystem.getCamera(0).isConnected()) {
@@ -198,8 +207,9 @@ public class Robot extends LoggedRobot {
       
       //testing the valuies that the camera gives us and outputing it into the dashboard
       Pose2d cameraPosition = camSystem.calculateRobotPosition();
-      SmartDashboard.putNumber("Camera X Position", cameraPosition.getX());
-      SmartDashboard.putNumber("Camera Y Position", cameraPosition.getY());
+
+      SmartDashboard.putNumber("Camera X Pos", cameraPosition.getX());
+      SmartDashboard.putNumber("Camera Y Pos", cameraPosition.getY());
       SmartDashboard.putNumber("Camera Heading", cameraPosition.getRotation().getDegrees());
     
     CommandScheduler.getInstance().run();
@@ -207,8 +217,8 @@ public class Robot extends LoggedRobot {
 
     //putting all of the info from the subsystems into the dashvoard so we can test things
     SmartDashboard.putNumber("Gyro Angle:", (drivebase.getHeading() + 90) % 360);
-    SmartDashboard.putNumber("X-coordinate", drivebase.getPose().getX());
-    SmartDashboard.putNumber("Y-coordinate", drivebase.getPose().getY());
+    SmartDashboard.putNumber("X-coordinate Pose", 16.5 - drivebase.getPose().getX());
+    SmartDashboard.putNumber("Y-coordinate Pose", drivebase.getPose().getY());
 
     SmartDashboard.putNumber("Flipper Position", intake.getFlipperPosition());
     SmartDashboard.putNumber("Launcher Position", launcher.getPosition());

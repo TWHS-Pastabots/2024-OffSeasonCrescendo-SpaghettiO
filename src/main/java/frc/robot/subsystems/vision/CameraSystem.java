@@ -89,17 +89,23 @@ public class CameraSystem{
                 // if the camera picks up a tag, it calculates the position from the tag and runs it through a pose estimator
                 Pose3d orig = calculatePoseFromCameraResult(cam.getLatestResult(), offsets.get(cameraCount));
                 if(orig != null){
-                    Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
-                    if(estimatedPose != null && !estimatedPose.isEmpty()){
-                        Pose3d temp = estimatedPose.get().estimatedPose;
-                        // add the components of the pose 3d to the sums
-                        sumX += temp.getX();
-                        sumY += temp.getY();
-                        rotationSumx += temp.getRotation().getX();
-                        rotationSumY += temp.getRotation().getY();
-                        rotationSumZ += temp.getRotation().getZ();              
-                        cameraTagCount++;     
-                    }
+                    // Optional<EstimatedRobotPose> estimatedPose = usePoseEstimator(cameraCount, orig.toPose2d());
+                    // if(!estimatedPose.isEmpty()){
+                    //     Pose3d temp = estimatedPose.get().estimatedPose;
+                    //     // add the components of the pose 3d to the sums
+                    //     sumX += temp.getX();
+                    //     sumY += temp.getY();
+                    //     rotationSumx += temp.getRotation().getX();
+                    //     rotationSumY += temp.getRotation().getY();
+                    //     rotationSumZ += temp.getRotation().getZ();              
+                    //     cameraTagCount++;     
+                    // }
+                    sumX += orig.getX();
+                    sumY += orig.getY();
+                    rotationSumx += orig.getRotation().getX();
+                    rotationSumY += orig.getRotation().getY();
+                    rotationSumZ += orig.getRotation().getZ();              
+                    cameraTagCount++;  
                 }
             }
             cameraCount++;

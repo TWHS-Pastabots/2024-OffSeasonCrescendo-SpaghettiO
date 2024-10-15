@@ -6,8 +6,13 @@ package frc.robot;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
@@ -165,6 +170,25 @@ public final class Constants {
     // prototype numbers:
     // P: .1 I: 0 D: 0
 
+  }
+  public static final class VisionConstants {
+    public static final double APRILTAG_AMBIGUITY_THRESHOLD = 0.2;
+    public static final double POSE_AMBIGUITY_SHIFTER = 0.2;
+    public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
+    public static final double NOISY_DISTANCE_METERS = 2.5;
+    public static final double DISTANCE_WEIGHT = 7;
+    public static final int TAG_PRESENCE_WEIGHT = 10;
+    public static final Matrix<N3,N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1()
+    , .5,
+    .5,
+    .5* Math.PI);
+
+    public static final Matrix<N3, N1> STATE_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(),
+        // if these numbers are less than one, multiplying will do bad things
+        .1, // x
+        .1, // y
+        .1);
+       
   }
 
 }

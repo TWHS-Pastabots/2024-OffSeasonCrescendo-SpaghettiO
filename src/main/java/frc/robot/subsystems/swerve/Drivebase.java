@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Ports;
 import frc.robot.subsystems.vision.CameraSystem;
 // import frc.robot.subsystems.vision.DualCamera;
@@ -116,7 +117,8 @@ public class Drivebase extends SubsystemBase {
     //     getPositions(), new Pose2d());
       poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
         Rotation2d.fromDegrees(-gyro.getAngle()),
-        getPositions(), new Pose2d(), STATE_STDS, VISION_STDS);
+        getPositions(), new Pose2d());
+      
 
     
     //TRAPAZOID MOTION PROFILE define the maximum velocity and acceleration (MAKE SURE TO TWEAK BEFORE EVERY SWERVE) 
@@ -168,14 +170,16 @@ public class Drivebase extends SubsystemBase {
 
   public Pose2d updateOdometry(Pose2d pose){
       CameraSystem system = CameraSystem.getInstance();
-      Pose2d position = poseEstimator.update(gyro.getRotation2d(), getPositions());
+      
+      Pose2d position = poseEstimator.updateWithTime(Timer.getFPGATimestamp(), gyro.getRotation2d(), getPositions());
       Pose2d defaultPose = new Pose2d(0, 0, new Rotation2d(0));
       // Transform2d trans = position.minus(pose);
       // (Math.abs(trans.getX()) > 1 || Math.abs(trans.getY()) > 1 || 
       // (Math.abs(trans.getX()) > (1/Math.sqrt(2)) && Math.abs(trans.getY()) > (1/Math.sqrt(2))))
       if(pose != null && pose != defaultPose && system.hasTargets() && system.getTimeStamp() != -1)
       {
-        poseEstimator.addVisionMeasurement(pose, system.getTimeStamp());
+        poseEstimator.addVisionMeasurement(pose, system.getTimeStamp(), 
+        Constants.VisionConstants.VISION_MEASUREMENT_STANDARD_DEVIATIONS);
       }
       return position;
   }
