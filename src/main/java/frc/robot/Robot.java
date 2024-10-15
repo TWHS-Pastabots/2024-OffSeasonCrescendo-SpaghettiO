@@ -161,6 +161,7 @@ public class Robot extends LoggedRobot {
     m_chooser.addOption("P2 Middle", new PathPlannerAuto("P2 Middle"));
     m_chooser.addOption("P3 4R", new PathPlannerAuto("P3 4R"));
     m_chooser.addOption("P3UnderStage", new PathPlannerAuto("P3UnderStage"));
+    m_chooser.addOption("MidNewVis", new PathPlannerAuto("FreakMid1"));
     SmartDashboard.putData("Auto choices", m_chooser);
 
   }

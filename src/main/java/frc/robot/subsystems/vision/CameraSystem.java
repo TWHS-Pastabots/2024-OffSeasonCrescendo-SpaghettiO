@@ -3,14 +3,19 @@ import java.util.ArrayList;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
+import frc.robot.subsystems.swerve.Drivebase;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -33,6 +38,7 @@ public class CameraSystem{
     private ArrayList<PhotonPoseEstimator> estimators;
     private ArrayList<Boolean> hasAprilTagDetection;
     public static final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    public Drivebase drivebase;
     
 
     private static CameraSystem instance;
@@ -44,6 +50,7 @@ public class CameraSystem{
         offsets  = new ArrayList<Transform3d>();
         estimators = new ArrayList<PhotonPoseEstimator>();
         hasAprilTagDetection = new ArrayList<Boolean>();
+
 
         // Initialize fiducial map with Pose3d
         initializeFiducialMap(inchesToMeters);
@@ -69,6 +76,25 @@ public class CameraSystem{
         estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         estimators.add(estimator);
         this.hasAprilTagDetection.add(hasAprilTagDetection);
+    }
+    public void AddVisionMeasurements(SwerveDrivePoseEstimator swerveEstimator)
+    {
+        int cameraCount = 0;
+        for (var estimator : estimators) 
+        {
+            if(CameraHasAprilTagDetection(cameraCount))
+            {
+                Optional<EstimatedRobotPose> estimatedPose = estimator.update(getResult(cameraCount));
+                Matrix<N3,N1> camStdDev = confidenceCalculator(cameraCount);
+                if(!estimatedPose.isEmpty() && camStdDev != null)
+                {
+                    Pose2d camRobotPose = estimatedPose.get().estimatedPose.toPose2d();
+                    double timestamp = estimatedPose.get().timestampSeconds;
+                    swerveEstimator.addVisionMeasurement(camRobotPose, timestamp, camStdDev);
+                }
+            }
+            cameraCount++;
+        }
     }
     // calculates robot position
      public Pose2d calculateRobotPosition() {
@@ -175,6 +201,40 @@ public class CameraSystem{
         }
         return null;
     }
+    private Matrix<N3, N1> confidenceCalculator(int position) 
+    {
+        Optional<EstimatedRobotPose> estimationPose = usePoseEstimator(position, null);
+        if(!estimationPose.isEmpty())
+        {
+            EstimatedRobotPose estimation = estimationPose.get();
+            double smallestDistance = Double.POSITIVE_INFINITY;
+            for (var target : estimation.targetsUsed)  
+            {
+                var t3d = target.getBestCameraToTarget();
+                var distance = Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
+                if (distance < smallestDistance)
+                    smallestDistance = distance;
+            }
+            double poseAmbiguityFactor = estimation.targetsUsed.size() != 1
+            ? 1
+            : Math.max(
+                1,
+                (estimation.targetsUsed.get(0).getPoseAmbiguity()
+                    + Constants.VisionConstants.POSE_AMBIGUITY_SHIFTER)
+                    * Constants.VisionConstants.POSE_AMBIGUITY_MULTIPLIER);
+            double confidenceMultiplier = Math.max(
+            1,
+            (Math.max(
+                1,
+                Math.max(0, smallestDistance - Constants.VisionConstants.NOISY_DISTANCE_METERS)
+                * Constants.VisionConstants.DISTANCE_WEIGHT) * poseAmbiguityFactor)
+                / (1 + ((estimation.targetsUsed.size() - 1) * Constants.VisionConstants.TAG_PRESENCE_WEIGHT)));
+
+            return Constants.VisionConstants.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier);
+        }
+        return null;
+    }
+    
     public static CameraSystem getInstance() {
         if (instance == null) {
             instance = new CameraSystem();

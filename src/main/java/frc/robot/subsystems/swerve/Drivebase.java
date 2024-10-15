@@ -82,9 +82,9 @@ public class Drivebase extends SubsystemBase {
 
   public double currHeading;
 
-  private static final Vector<N3> STATE_STDS = VecBuilder.fill(.05, .05, Units.degreesToRadians(5));
+  private static final Vector<N3> STATE_STDS = VecBuilder.fill(.1, .1, Units.degreesToRadians(5));
 
-  private static final Vector<N3> VISION_STDS = VecBuilder.fill(.1, .1, Units.degreesToRadians(510));
+  private static final Vector<N3> VISION_STDS = VecBuilder.fill(.05, .05, Units.degreesToRadians(25));
 
   public Drivebase() {
 
@@ -117,7 +117,9 @@ public class Drivebase extends SubsystemBase {
     //     getPositions(), new Pose2d());
       poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
         Rotation2d.fromDegrees(-gyro.getAngle()),
-        getPositions(), new Pose2d());
+        getPositions(), new Pose2d(),
+        STATE_STDS, 
+        VISION_STDS);
       
 
     
