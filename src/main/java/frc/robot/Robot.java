@@ -293,9 +293,9 @@ public class Robot extends LoggedRobot {
       launcher.moveAmp();
     }
     //setting inputs for driving through the driver controller
-    double ySpeed = drivebase.inputDeadband(-driver.getLeftX());
-    double xSpeed = drivebase.inputDeadband(driver.getLeftY());
-    double rot = drivebase.inputDeadband(-driver.getRightX());
+    // double ySpeed = drivebase.inputDeadband(-driver.getLeftX());
+    // double xSpeed = drivebase.inputDeadband(driver.getLeftY());
+    // double rot = drivebase.inputDeadband(-driver.getRightX());
     //using buttons to rotate the robot by increments of 90 degrees
     // if (driver.getAButton()) {
     //   drivebase.currHeading = -1;
@@ -318,13 +318,9 @@ public class Robot extends LoggedRobot {
    
     if(mts.getRawButton(1))
     {
-      intake.setRollerPower();
-      handoffCommand.schedule();
-      // if(handoffCommand.isFinished()){
-      //   // launcher.setLauncherState(LauncherState.HOVER);
-      //   // intake.setIntakeState(IntakeState.STOP);
-
-      // }
+      launcher.setLauncherState(LauncherState.TEST);
+      launcher.setReverseLauncherOn();
+      launcher.setFlickerReverse();
       SmartDashboard.putString("Button 1 Pressed", "Button 1 Pressed");
     }else {
           SmartDashboard.putString("Button 1 Pressed", "No 1");
@@ -332,29 +328,28 @@ public class Robot extends LoggedRobot {
     }
     if(mts.getRawButton(2))
     {
-    launcher.setLauncherState(LauncherState.LONG);
-    launcher.updatePose();
+      shootCommand.initialize();
+      shootCommand.schedule();
     SmartDashboard.putString("Button 2 Pressed", "Button 2 Pressed");
 
     }else{
           SmartDashboard.putString("Button 2 Pressed", "No 2");
 
     }
-    if(mts.getRawButton(3))
+    if(mts.getRawButton(4))
     {
-    shootCommand.initialize();
-    shootCommand.schedule();
+      launcher.setLauncherState(LauncherState.SPEAKER);
+      launcher.updatePose();
     SmartDashboard.putString("Button 3 Pressed", "Button 3 Pressed");
 
     }else{
     SmartDashboard.putString("Button 3 Pressed", "No 3");
 
     }
-    if(mts.getRawButton(4))
+    if(mts.getRawButton(3))
     {
-    launcher.setLauncherState(LauncherState.TEST);
-    launcher.setReverseLauncherOn();
-    launcher.setFlickerReverse();
+    launcher.setLauncherState(LauncherState.LONG);
+    launcher.updatePose();
     SmartDashboard.putString("Button 4 Pressed", "Button 4 Pressed");
 
     }else{
@@ -364,25 +359,59 @@ public class Robot extends LoggedRobot {
     {
       intake.setIntakeState(IntakeState.STOP);
       intake.setRollerOff();
+      intake.updatePose();
       launcher.setLauncherState(LauncherState.HOVER);
       launcher.setAmpPose(AmpMotorPos.DOWN);
       launcher.updatePose();
       launcher.moveAmp();
       launcher.setLauncherOff();
-      launcher.setFlickOff();   
+      launcher.setFlickOff();  
+ 
     }
+    if(mts.getRawButton(6))
+    {
+      handoffCommand.cancel();
+      intake.setRollerPower();
+      handoffCommand.schedule();
+    }
+     if (mts.getRawButton(7)) {
+      climber.setClimbingPower();
+      SmartDashboard.putString("Button 7 Pressed", "Button 7 Pressed");
+
+    } else if (mts.getRawButton(8)) {
+      climber.setReverseClimberPower();
+      SmartDashboard.putString("Button 8 Pressed", "Button 8 Pressed");
+
+    } else {
+      climber.setClimberOff();
+      SmartDashboard.putString("Button 7 Pressed", "No 7");
+      SmartDashboard.putString("Button 8 Pressed", "No 8");
+
+    }
+
+    if(mts.getRawButton(9)){
+      SmartDashboard.putString("Button 9 Pressed", "Button 9 Pressed");
+
+    }else{
+      SmartDashboard.putString("Button 9 Pressed", "No 9");
+
+    }
+
+    
+
+    
   //   else
   //   {
   //     SmartDashboard.putString("Button 6 Pressed", "No 6 Pressed");
   //   }
-  //   if(mts.getRawButton(11))
-  //   {
-  //     SmartDashboard.putString("Button 11 Pressed", "Button 11 Pressed");
-  //   }
-  //   else
-  //   {
-  //     SmartDashboard.putString("Button 11 Pressed", "No 11 Pressed");
-  //   }
+    // if(mts.getRawButton(12))
+    // {
+    //   SmartDashboard.putString("Button 11 Pressed", "Button 11 Pressed");
+    // }
+    // else
+    // {
+    //   SmartDashboard.putString("Button 11 Pressed", "No 11 ");
+    // }
 
   //   if(mts.getRawButton(12)){
   //     SmartDashboard.putString("Button 12 Pressed", "Button 12 Pressed");
@@ -398,20 +427,20 @@ public class Robot extends LoggedRobot {
   //   }else{
   //     SmartDashboard.putString("Button 5 Pressed", "No 5 Pressed");
 
-  //   }
-  // double ySpeed = drivebase.inputDeadband(-joystick.getX()*.25);
-  // // -driver.getLeftX()
-  // double xSpeed = drivebase.inputDeadband(joystick.getY()*.25);
-  // // driver.getLeftY()
+    // }
+  double ySpeed = drivebase.inputDeadband(-joystick.getX()*.17);
+  // -driver.getLeftX()
+  double xSpeed = drivebase.inputDeadband(joystick.getY()*.17);
+  // driver.getLeftY()
 
-  // double rot = drivebase.inputDeadband(joystick.getRawAxis(3)*.25);
-  // //  rot = drivebase.inputDeadband(joystick.getZ()*.25);
+  double rot = drivebase.inputDeadband(joystick.getRawAxis(3)*.17);
+  //  rot = drivebase.inputDeadband(joystick.getZ()*.25);
 
-  //  if(joystick.getZ() > 0.0){
-  //   rot = drivebase.inputDeadband(joystick.getZ()*.25);
-  //  }else{
-  //   rot = drivebase.inputDeadband(-joystick.getRawAxis(3)*.25);
-  //  }
+   if(joystick.getZ() > 0.0){
+    rot = drivebase.inputDeadband(joystick.getZ()*.17);
+   }else{
+    rot = drivebase.inputDeadband(-joystick.getRawAxis(3)*.17);
+   }
 
 
   // if(joystick.getZ()>0.0)
@@ -534,13 +563,13 @@ public class Robot extends LoggedRobot {
 
     // *CLIMBER CONTROLS */
 
-    if (driver.getRightBumper()) {
-      climber.setClimbingPower();
-    } else if (driver.getLeftBumper()) {
-      climber.setReverseClimberPower();
-    } else {
-      climber.setClimberOff();
-    }
+    // if (driver.getRightBumper()) {
+    //   climber.setClimbingPower();
+    // } else if (driver.getLeftBumper()) {
+    //   climber.setReverseClimberPower();
+    // } else {
+    //   climber.setClimberOff();
+    // }
 
     /* LAUNCHER CONTROLS */
     if (operator.getPOV() == 0) {

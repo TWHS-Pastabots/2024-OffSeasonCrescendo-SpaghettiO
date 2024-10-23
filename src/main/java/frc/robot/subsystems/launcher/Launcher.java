@@ -20,12 +20,13 @@ public class Launcher {
         ALTAMP(-55, 0.9),
         START(0, 0.0),
         TRAP(-70.04991149902344, 0.8),
-        LONG(-15.75, 1.0),
+        LONG(-10.75, 0.5),
+        //LONG was -15.75
         //was 9 before (HANDOFF)
         HANDOFF(8.5, 0.5),
         //was -3 before (HOVER)
         HOVER(-6, 1.0),
-        TOSS(-22, .80),
+        TOSS(-22, .65),
         AUTOMIDSHOT(-12, 1.0),
         // height: ?
         AUTOLEFTSHOT(-13.5, 1.0),
@@ -33,7 +34,7 @@ public class Launcher {
         AUTORIGHTSHOT(-13.5, 1.0),
         // height: ?7
         //angle from the negative vertical (3pi/2 to pi type beat): 149.85
-        SPEAKER(-56, 1.0),
+        SPEAKER(-56, 0.50),
         AUTO(0, 1.0),
         ALTSPEAKER(-23, 1.0),
         INTERLOPE(0.0, 1.0),
