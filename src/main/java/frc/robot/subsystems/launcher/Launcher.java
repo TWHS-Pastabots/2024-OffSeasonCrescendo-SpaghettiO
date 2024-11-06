@@ -20,13 +20,13 @@ public class Launcher {
         ALTAMP(-55, 0.9),
         START(0, 0.0),
         TRAP(-70.04991149902344, 0.8),
-        LONG(-10.75, 0.5),
+        LONG(-15.75, .2),
         //LONG was -15.75
         //was 9 before (HANDOFF)
         HANDOFF(8.5, 0.5),
         //was -3 before (HOVER)
-        HOVER(-6, 1.0),
-        TOSS(-22, .65),
+        HOVER(-6, 0.5),
+        TOSS(-22, .8),
         AUTOMIDSHOT(-12, 1.0),
         // height: ?
         AUTOLEFTSHOT(-13.5, 1.0),

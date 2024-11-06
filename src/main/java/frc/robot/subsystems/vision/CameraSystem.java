@@ -211,7 +211,7 @@ public class CameraSystem{
             for (var target : estimation.targetsUsed)  
             {
                 var t3d = target.getBestCameraToTarget();
-                var distance = Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
+                double distance = Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
                 if (distance < smallestDistance)
                     smallestDistance = distance;
             }

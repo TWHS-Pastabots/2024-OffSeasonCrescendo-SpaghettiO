@@ -388,14 +388,17 @@ public class Robot extends LoggedRobot {
       SmartDashboard.putString("Button 8 Pressed", "No 8");
 
     }
-
-    if(mts.getRawButton(9)){
-      SmartDashboard.putString("Button 9 Pressed", "Button 9 Pressed");
+    if(mts.getRawButton(10))
+    {
+      drivebase.zeroHeading();
+       SmartDashboard.putString("Button 10 Pressed", "Button 10 Pressed");
 
     }else{
-      SmartDashboard.putString("Button 9 Pressed", "No 9");
-
+      SmartDashboard.putString("Button 10 Pressed", "No 10");
     }
+  
+
+   
 
     
 
@@ -458,7 +461,7 @@ public class Robot extends LoggedRobot {
       litty.setRed();
     }
     if (operator.getYButton()) {
-      launcher.setLauncherState(LauncherState.SPEAKER);
+      launcher.setLauncherState(LauncherState.TOSS);
       launcher.updatePose();
       launcher.setReverseLauncherOn();
       launcher.setFlickerReverse();
@@ -581,9 +584,9 @@ public class Robot extends LoggedRobot {
     if (operator.getPOV() == 180) {
       launcher.setLauncherState(LauncherState.TOSS);
     }
-    // if (operator.getPOV() == 270) {
-    //   launcher.setLauncherState(LauncherState.LONG);
-    // }
+    if (operator.getPOV() == 270) {
+      launcher.setLauncherState(LauncherState.LONG);
+    }
      if (operator.getAButton()) {
       foldOutCommand.schedule();
       intake.setIntakeState(IntakeState.GROUND);
