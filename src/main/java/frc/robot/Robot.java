@@ -316,16 +316,17 @@ public class Robot extends LoggedRobot {
     // }
 
    
-    if(mts.getRawButton(1))
+    if(mts.getRawButton(6))
     {
       launcher.setLauncherState(LauncherState.TEST);
       launcher.setReverseLauncherOn();
       launcher.setFlickerReverse();
-      SmartDashboard.putString("Button 1 Pressed", "Button 1 Pressed");
+      SmartDashboard.putString("Button 6 Pressed", "Button 6 Pressed");
     }else {
-          SmartDashboard.putString("Button 1 Pressed", "No 1");
+          SmartDashboard.putString("Button 6 Pressed", "No 6");
 
     }
+
     if(mts.getRawButton(2))
     {
       shootCommand.initialize();
@@ -336,17 +337,18 @@ public class Robot extends LoggedRobot {
           SmartDashboard.putString("Button 2 Pressed", "No 2");
 
     }
+
+    // if(mts.getRawButton(4))
+    // {
+    //   launcher.setLauncherState(LauncherState.SPEAKER);
+    //   launcher.updatePose();
+    // SmartDashboard.putString("Button 3 Pressed", "Button 3 Pressed");
+
+    // }else{
+    // SmartDashboard.putString("Button 3 Pressed", "No 3");
+
+    // }
     if(mts.getRawButton(4))
-    {
-      launcher.setLauncherState(LauncherState.SPEAKER);
-      launcher.updatePose();
-    SmartDashboard.putString("Button 3 Pressed", "Button 3 Pressed");
-
-    }else{
-    SmartDashboard.putString("Button 3 Pressed", "No 3");
-
-    }
-    if(mts.getRawButton(3))
     {
     launcher.setLauncherState(LauncherState.LONG);
     launcher.updatePose();
@@ -355,6 +357,7 @@ public class Robot extends LoggedRobot {
     }else{
     SmartDashboard.putString("Button 4 Pressed", "No 4");
     }
+
     if(mts.getRawButton(5))
     {
       intake.setIntakeState(IntakeState.STOP);
@@ -366,28 +369,28 @@ public class Robot extends LoggedRobot {
       launcher.moveAmp();
       launcher.setLauncherOff();
       launcher.setFlickOff();  
- 
     }
-    if(mts.getRawButton(6))
+
+    if(mts.getRawButton(1))
     {
       handoffCommand.cancel();
       intake.setRollerPower();
       handoffCommand.schedule();
     }
-     if (mts.getRawButton(7)) {
-      climber.setClimbingPower();
-      SmartDashboard.putString("Button 7 Pressed", "Button 7 Pressed");
+    //  if (mts.getRawButton(7)) {
+    //   climber.setClimbingPower();
+    //   SmartDashboard.putString("Button 7 Pressed", "Button 7 Pressed");
 
-    } else if (mts.getRawButton(8)) {
-      climber.setReverseClimberPower();
-      SmartDashboard.putString("Button 8 Pressed", "Button 8 Pressed");
+    // } else if (mts.getRawButton(8)) {
+    //   climber.setReverseClimberPower();
+    //   SmartDashboard.putString("Button 8 Pressed", "Button 8 Pressed");
 
-    } else {
-      climber.setClimberOff();
-      SmartDashboard.putString("Button 7 Pressed", "No 7");
-      SmartDashboard.putString("Button 8 Pressed", "No 8");
+    // } else {
+    //   climber.setClimberOff();
+    //   SmartDashboard.putString("Button 7 Pressed", "No 7");
+    //   SmartDashboard.putString("Button 8 Pressed", "No 8");
 
-    }
+    // }
     if(mts.getRawButton(10))
     {
       drivebase.zeroHeading();
@@ -454,62 +457,62 @@ public class Robot extends LoggedRobot {
   // SmartDashboard.putString("rot", "no rot");
 
   
-    if (driver.getPOV() == 0) {
-      drivebase.zeroHeading();
-    }
-    if(driver.getPOV() == 180){
-      litty.setRed();
-    }
-    if (operator.getYButton()) {
-      launcher.setLauncherState(LauncherState.TOSS);
-      launcher.updatePose();
-      launcher.setReverseLauncherOn();
-      launcher.setFlickerReverse();
-    }
+    // if (driver.getPOV() == 0) {
+    //   drivebase.zeroHeading();
+    // }
+    // if(driver.getPOV() == 180){
+    //   litty.setRed();
+    // }
+    // if (operator.getYButton()) {
+    //   launcher.setLauncherState(LauncherState.TOSS);
+    //   launcher.updatePose();
+    //   launcher.setReverseLauncherOn();
+    //   launcher.setFlickerReverse();
+    // }
 
-    if (driver.getRightTriggerAxis() > 0) {
-      drivebase.setDriveState(DriveState.SLOW);
-    } else if (!CommandScheduler.getInstance().isScheduled(ampCommand)) {
-      drivebase.setDriveState(DriveState.NORMAL);
-    }
+    // if (driver.getRightTriggerAxis() > 0) {
+    //   drivebase.setDriveState(DriveState.SLOW);
+    // } else if (!CommandScheduler.getInstance().isScheduled(ampCommand)) {
+    //   drivebase.setDriveState(DriveState.NORMAL);
+    // }
     //getting yaw from the tag to rotate towards it. The robot will allign itself with the 
-    if(driver.getLeftTriggerAxis() > 0)
-    {
-      //Double yaw = camSystem.getYawForTag(1, 4);
-      Double yaw = camSystem.getYawforObject(2);
-      targetRange = camSystem.getTargetRange(1, 4);
-      targetAngle = camSystem.getTargetAngle(1, 4);
-      if(yaw !=null)
-      {
-        rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
-      }
-      // if(targetRange != null){
-      //   xSpeed = (targetRange - 2.5) * .1 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
-      // }
+    // if(driver.getLeftTriggerAxis() > 0)
+    // {
+    //   //Double yaw = camSystem.getYawForTag(1, 4);
+    //   Double yaw = camSystem.getYawforObject(2);
+    //   targetRange = camSystem.getTargetRange(1, 4);
+    //   targetAngle = camSystem.getTargetAngle(1, 4);
+    //   if(yaw !=null)
+    //   {
+    //     rot =  -yaw * .002 * Constants.DriveConstants.kMaxAngularSpeed;
+    //   }
+    //   // if(targetRange != null){
+    //   //   xSpeed = (targetRange - 2.5) * .1 * Constants.DriveConstants.kMaxSpeedMetersPerSecond;
+    //   // }
       
       
-    }
-    if (operator.getPOV() == 270) 
-    {
-      targetAngle = camSystem.getTargetAngle(1, 4);
-      if(targetAngle != null)
-      {
-        launcher.setLauncherState(LauncherState.AUTO);
-        launcher.setLauncherPosition(targetAngle);
-        launcher.updatePose();
-      }
-    }
-    if(targetRange != null)
-    {
-      SmartDashboard.putNumber("TargetRange", targetRange);
-    }
-    if(targetAngle != null)
-    {
-      SmartDashboard.putNumber("Target Angle", targetAngle);
-    }
-    if(camSystem.getResult(1).hasTargets() && camSystem.getResult(1).getBestTarget() != null){
-      SmartDashboard.putNumber("TargetPitch", Units.degreesToRadians(camSystem.getResult(1).getBestTarget().getPitch()));
-    }
+    // }
+    // if (operator.getPOV() == 270) 
+    // {
+    //   targetAngle = camSystem.getTargetAngle(1, 4);
+    //   if(targetAngle != null)
+    //   {
+    //     launcher.setLauncherState(LauncherState.AUTO);
+    //     launcher.setLauncherPosition(targetAngle);
+    //     launcher.updatePose();
+    //   }
+    // }
+    // if(targetRange != null)
+    // {
+    //   SmartDashboard.putNumber("TargetRange", targetRange);
+    // }
+    // if(targetAngle != null)
+    // {
+    //   SmartDashboard.putNumber("Target Angle", targetAngle);
+    // }
+    // if(camSystem.getResult(1).hasTargets() && camSystem.getResult(1).getBestTarget() != null){
+    //   SmartDashboard.putNumber("TargetPitch", Units.degreesToRadians(camSystem.getResult(1).getBestTarget().getPitch()));
+    // }
       
 
    
@@ -535,34 +538,34 @@ public class Robot extends LoggedRobot {
      * Left back button - cancels every command on the robot
      * right back button - sets the robot up to amp
      */
-    if (operator.getRightBumper()) {
-      launcher.setLauncherState(LauncherState.HANDOFF);
-      handoffCommand.schedule();
-    }
+    // if (operator.getRightBumper()) {
+    //   launcher.setLauncherState(LauncherState.HANDOFF);
+    //   handoffCommand.schedule();
+    // }
 
-    if (operator.getBButton()) {
-      launcher.setLauncherState(LauncherState.TEST);
-      launcher.eject();
-      launcher.setFlickerPartial();
-      litty.setRed();
-    }
+    // if (operator.getBButton()) {
+    //   launcher.setLauncherState(LauncherState.TEST);
+    //   launcher.eject();
+    //   launcher.setFlickerPartial();
+    //   litty.setRed();
+    // }
 
-    if (operator.getLeftBumper()) {
-      intake.setIntakeState(IntakeState.STOP); 
-      launcher.setLauncherState(LauncherState.HOVER);
-      launcher.setAmpPose(AmpMotorPos.DOWN);
-      launcher.updatePose();
-      launcher.moveAmp();
-      launcher.setLauncherOff();
-      launcher.setFlickOff();
-    }
+    // if (operator.getLeftBumper()) {
+    //   intake.setIntakeState(IntakeState.STOP); 
+    //   launcher.setLauncherState(LauncherState.HOVER);
+    //   launcher.setAmpPose(AmpMotorPos.DOWN);
+    //   launcher.updatePose();
+    //   launcher.moveAmp();
+    //   launcher.setLauncherOff();
+    //   launcher.setFlickOff();
+    // }
 
-    if (operator.getRightStickButtonPressed()) {
-      launcher.increasePosition();
-    }
-    if(operator.getLeftStickButtonPressed()){
-      launcher.decreasePosition();
-    }
+    // if (operator.getRightStickButtonPressed()) {
+    //   launcher.increasePosition();
+    // }
+    // if(operator.getLeftStickButtonPressed()){
+    //   launcher.decreasePosition();
+    // }
 
     // *CLIMBER CONTROLS */
 
@@ -575,51 +578,51 @@ public class Robot extends LoggedRobot {
     // }
 
     /* LAUNCHER CONTROLS */
-    if (operator.getPOV() == 0) {
-      launcher.setLauncherState(LauncherState.SPEAKER);
-    }
-    if (operator.getPOV() == 90) {
-      launcher.setLauncherState(LauncherState.AMP);
-    }
-    if (operator.getPOV() == 180) {
-      launcher.setLauncherState(LauncherState.TOSS);
-    }
-    if (operator.getPOV() == 270) {
-      launcher.setLauncherState(LauncherState.LONG);
-    }
-     if (operator.getAButton()) {
-      foldOutCommand.schedule();
-      intake.setIntakeState(IntakeState.GROUND);
-     }
-    if (operator.getXButton()) {
-      launcher.setLauncherState(LauncherState.TEST);
-      launcher.setReverseLauncherOn();
-      intake.setReverseRollerPower();
-      launcher.setFlickerReverse();
+    // if (operator.getPOV() == 0) {
+    //   launcher.setLauncherState(LauncherState.SPEAKER);
+    // }
+    // if (operator.getPOV() == 90) {
+    //   launcher.setLauncherState(LauncherState.AMP);
+    // }
+    // if (operator.getPOV() == 180) {
+    //   launcher.setLauncherState(LauncherState.TOSS);
+    // }
+    // if (operator.getPOV() == 270) {
+    //   launcher.setLauncherState(LauncherState.LONG);
+    // }
+    //  if (operator.getAButton()) {
+    //   foldOutCommand.schedule();
+    //   intake.setIntakeState(IntakeState.GROUND);
+    //  }
+    // if (operator.getXButton()) {
+    //   launcher.setLauncherState(LauncherState.TEST);
+    //   launcher.setReverseLauncherOn();
+    //   intake.setReverseRollerPower();
+    //   launcher.setFlickerReverse();
       
-    }
+    // }
 
-    if (operator.getRightTriggerAxis() > 0) {
-      if (launcher.getLaunchState() == LauncherState.AMP) {
-        ampCommand.initialize();
-        ampCommand.schedule();
-        drivebase.setDriveState(DriveState.SLOW);
-      } else if (launcher.getLaunchState() == LauncherState.ALTAMP) {
+    // if (operator.getRightTriggerAxis() > 0) {
+    //   if (launcher.getLaunchState() == LauncherState.AMP) {
+    //     ampCommand.initialize();
+    //     ampCommand.schedule();
+    //     drivebase.setDriveState(DriveState.SLOW);
+    //   } else if (launcher.getLaunchState() == LauncherState.ALTAMP) {
         
-        drivebase.setDriveState(DriveState.SLOW);
-      } else {
-        shootCommand.initialize();
-        shootCommand.schedule();
-      }
-    } else if (operator.getLeftTriggerAxis() > 0) {
-      foldOutCommand.cancel();
-      launcher.setLauncherOff();
-      launcher.setFlickOff();
-      intake.setRollerOff();
-      shootCommand.cancel();
-      ampCommand.cancel();
-      handoffCommand.cancel();
-    }
+    //     drivebase.setDriveState(DriveState.SLOW);
+    //   } else {
+    //     shootCommand.initialize();
+    //     shootCommand.schedule();
+    //   }
+    // } else if (operator.getLeftTriggerAxis() > 0) {
+    //   foldOutCommand.cancel();
+    //   launcher.setLauncherOff();
+    //   launcher.setFlickOff();
+    //   intake.setRollerOff();
+    //   shootCommand.cancel();
+    //   ampCommand.cancel();
+    //   handoffCommand.cancel();
+    // }
   }
     
 
