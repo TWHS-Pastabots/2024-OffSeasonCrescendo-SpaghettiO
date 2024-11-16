@@ -20,7 +20,7 @@ public class Launcher {
         ALTAMP(-55, 0.9),
         START(0, 0.0),
         TRAP(-70.04991149902344, 0.8),
-        LONG(-15.75, .2),
+        LONG(-15.75, .6),
         //LONG was -15.75
         //was 9 before (HANDOFF)
         HANDOFF(8.5, 0.5),
@@ -244,11 +244,11 @@ public class Launcher {
         if (launchState == LauncherState.AMP) {
            
             shootMotor1.set(launchState.launchSpeed * 0.1);
-            shootMotor2.set(launchState.launchSpeed * 0.1);
+            shootMotor2.set(-launchState.launchSpeed * 0.1);
         } 
         else {
             shootMotor1.set(launchState.launchSpeed);
-            shootMotor2.set(launchState.launchSpeed);
+            shootMotor2.set(-launchState.launchSpeed);
         }
     }
     //The reverse of Launcher power
@@ -256,7 +256,7 @@ public class Launcher {
 
         
         shootMotor1.set(-launchState.launchSpeed);
-        shootMotor2.set(-launchState.launchSpeed);
+        shootMotor2.set(launchState.launchSpeed);
         
     }
     //Launcher turned off

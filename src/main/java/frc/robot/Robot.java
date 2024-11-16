@@ -319,7 +319,7 @@ public class Robot extends LoggedRobot {
     if(mts.getRawButton(6))
     {
       launcher.setLauncherState(LauncherState.TEST);
-      launcher.setReverseLauncherOn();
+      launcher.setLauncherOn();
       launcher.setFlickerReverse();
       SmartDashboard.putString("Button 6 Pressed", "Button 6 Pressed");
     }else {
@@ -329,6 +329,8 @@ public class Robot extends LoggedRobot {
 
     if(mts.getRawButton(2))
     {
+      launcher.setLauncherState(LauncherState.LONG);
+      launcher.updatePose();
       shootCommand.initialize();
       shootCommand.schedule();
     SmartDashboard.putString("Button 2 Pressed", "Button 2 Pressed");
