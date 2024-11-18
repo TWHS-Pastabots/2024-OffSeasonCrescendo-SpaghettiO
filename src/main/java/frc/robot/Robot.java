@@ -319,7 +319,7 @@ public class Robot extends LoggedRobot {
     if(mts.getRawButton(6))
     {
       launcher.setLauncherState(LauncherState.TEST);
-      launcher.setLauncherOn();
+      launcher.setReverseLauncherOn();
       launcher.setFlickerReverse();
       SmartDashboard.putString("Button 6 Pressed", "Button 6 Pressed");
     }else {
