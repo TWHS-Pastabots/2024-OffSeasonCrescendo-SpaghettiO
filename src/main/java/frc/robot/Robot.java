@@ -66,7 +66,6 @@ public class Robot extends LoggedRobot {
   private BreakBeamHandoff handoffCommand;
   private ShootCommand shootCommand;
   private AutoSpeaker autoSpeaker;
-  
   private AmpCommand ampCommand;
 
   Double targetRange = null;
@@ -378,6 +377,7 @@ public class Robot extends LoggedRobot {
       handoffCommand.cancel();
       intake.setRollerPower();
       handoffCommand.schedule();
+      
     }
     //  if (mts.getRawButton(7)) {
     //   climber.setClimbingPower();
