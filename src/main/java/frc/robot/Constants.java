@@ -34,7 +34,7 @@ public final class Constants {
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 2;
     // competition 5 m/s
-    public static final double kMaxAngularSpeed = 2*Math.PI; // radians per second
+    public static final double kMaxAngularSpeed = Math.PI; // radians per second
     // competition 2pi
 
     public static final double kDirectionSlewRate = 1.2; // radians per second

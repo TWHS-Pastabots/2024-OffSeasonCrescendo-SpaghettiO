@@ -20,7 +20,8 @@ public class Launcher {
         ALTAMP(-55, 0.9),
         START(0, 0.0),
         TRAP(-70.04991149902344, 0.8),
-        LONG(-15.75, .6),
+        LONG(-10.75, .6),
+        //=15.75
         //LONG was -15.75
         //was 9 before (HANDOFF)
         HANDOFF(8.5, 0.5),
